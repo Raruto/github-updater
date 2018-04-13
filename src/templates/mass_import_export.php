@@ -11,6 +11,7 @@
 use Fragen\GitHub_Updater\Model\JSON\GHUModelInterface;
 use Fragen\GitHub_Updater\Model\JSON\GHUModel;
 use Fragen\GitHub_Updater\Model\JSON\ComposerModel;
+use Fragen\GitHub_Updater\WP_Dependency_Installer;
 
 ?>
 
@@ -18,7 +19,7 @@ use Fragen\GitHub_Updater\Model\JSON\ComposerModel;
 	/* div.json-beta-feature { display: none; } */
 	.json-beta-feature button::after { content: " (beta) "; color: #f00; font-weight: 700; }
 	pre.github-updater_json, pre.composer_json { padding:1em; background:#fff; border: 1px solid #ddd; }
-	button.upload-json { width: 100%; margin-top:1em; }
+	button.upload-json, button.delete-json { width: 100%; margin-top:1em; }
 	button.download-json { width: 100%; }
 	h3.json-alternative { width:100%; text-align:center; }
 </style>
@@ -38,6 +39,11 @@ $github_updater_json = $model->to_json();
 $model = new ComposerModel();
 $model->fill();
 $composer_json = $model->to_json();
+
+if(WP_Dependency_Installer::instance()->is_running_config()){
+	echo '<button type="button" value="delete" id="delete-json_file" class="delete-json button button-secondary">Delete currently uploaded github-updater.json configuration file</button>';
+	echo '<h3 class="json-alternative">or</h3>';
+}
 
 echo '<button type="button" value="upload" id="upload-json_file" class="upload-json button button-secondary">Upload a github-updater.json</button>';
 echo '<input id="json_file" type="file" accept=".json,application/json" hidden/>';
@@ -106,16 +112,33 @@ function uploadJsonFile(e) {
 					contentType: "application/json",
 					action: 'dependency_installer',
 					method: 'upload',
-					config  : json_object
-					//config  : e.target.result
+					//config  : e.target.result,
+					config  : json_object,
+					complete: function(data){
+								var timeout = setTimeout("location.reload(true);",5000);
+								alert("After you press OK, this page will automatically refresh when done.\nMaybe you may have to refresh this page a couple of times to see some changes.\n\nPlease be patient...");
+							}
 				});
 		};
 		reader.readAsText(e.target.files[0]);
 	}
 }
+function deleteJsonFile(e) {
+	$.post(ajaxurl, {
+		action: 'dependency_installer',
+		method: 'delete',
+		complete: function(data){
+			var timeout = setTimeout("location.reload(true);",5000);
+			alert("After you press OK, this page will automatically refresh when done.\nMaybe you may have to refresh this page a couple of times to see some changes.\n\nPlease be patient...");
+		}
+		});
+}
 
 var input = document.getElementById('json_file');
 input.addEventListener('change', uploadJsonFile);
+var button00 = document.getElementById('delete-json_file');
+if( typeof button00 !== "undefined" && button00 != null )
+	button00.addEventListener('click', deleteJsonFile);
 var button0 = document.getElementById('upload-json_file');
 button0.addEventListener('click', openDialog);
 var button1 = document.getElementById('download-github-updater_json');

@@ -124,6 +124,15 @@ if ( ! defined( 'WPINC' ) ) {
 			$this->register( $config );
 		}
 
+		public function delete( $slug ){
+			//TODO: allow deleting specifc plugins instead of whole json config file
+			delete_site_option('ghu_wp-dependencies');
+		}
+
+		public function is_running_config(){
+			return isset($this->config) && count($this->config) > 0;
+		}
+
 		/**
 		 * Process the registered dependencies.
 		 */
@@ -134,7 +143,7 @@ if ( ! defined( 'WPINC' ) ) {
 
 				$download_link = null;
 
-				// Some automatically generated json files have
+				// FIXME: Some automatically generated json files have
 				// $dependency['host'] == "uknown" (so it doesn't even have a "uri")
 				// Default beavhiour is to ignore this dependency
 				if( !isset($dependency['uri']) ){
@@ -188,7 +197,13 @@ if ( ! defined( 'WPINC' ) ) {
 
 			// Generate admin notices.
 			foreach ( $this->config as $slug => $dependency ) {
-				$is_optional = ! ( isset( $dependency['optional'] ) && false === $dependency['optional'] );
+				$is_optional = ! ( isset( $dependency['optional'] ) && ( false === $dependency['optional'] || "false" == $dependency['optional'] ));
+
+				error_log($slug);
+				error_log($dependency['optional']);
+				error_log($is_optional);
+
+
 
 				if ( ! $is_optional ) {
 					$this->hide_plugin_action_links( $slug );
@@ -263,7 +278,7 @@ if ( ! defined( 'WPINC' ) ) {
 			$method    = isset( $_POST['method'] ) ? $_POST['method'] : '';
 			$config    = isset( $_POST['config'] ) ? $_POST['config'] : '';
 			$slug      = isset( $_POST['slug'] ) ? $_POST['slug'] : '';
-			$whitelist = array( 'install', 'activate', 'dismiss', 'upload' );
+			$whitelist = array( 'install', 'activate', 'dismiss', 'upload', 'delete' );
 
 			if ( in_array( $method, $whitelist, true ) ) {
 				$response = $this->$method( $method == 'upload' ? $config : $slug );
@@ -304,7 +319,7 @@ if ( ! defined( 'WPINC' ) ) {
 				'type'  => 'plugin',
 				'nonce' => wp_nonce_url( $this->config[ $slug ]['download_link'] ),
 			) );
-			$upgrader = new Plugin_Upgrader( $skin );
+			$upgrader = new Plugin_Upgrader( $skin ); //FIXME: add root namespace slash
 			$result   = $upgrader->install( $this->config[ $slug ]['download_link'] );
 
 			if ( is_wp_error( $result ) ) {
