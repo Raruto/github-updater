@@ -11,7 +11,6 @@
 namespace Fragen\GitHub_Updater;
 
 use Fragen\Singleton;
-use Fragen\GitHub_Updater\Model\JSON_Model;
 
 /*
  * Exit if called directly.
@@ -232,7 +231,6 @@ class Settings extends Base {
 
 		if ( 'github_updater_mass_import_export' === $tab ) {
 			$action = add_query_arg( 'tab', $tab, $action );
-			$model = new JSON_Model();
 			include ghu_locate_template( "mass_import_export.php" );
 		}
 

@@ -7,11 +7,16 @@
  * @license	GPL-2.0+
  * @link	 https://github.com/afragen/github-updater
  */
+
+use Fragen\GitHub_Updater\Model\JSON\GHUModelInterface;
+use Fragen\GitHub_Updater\Model\JSON\GHUModel;
+use Fragen\GitHub_Updater\Model\JSON\ComposerModel;
+
 ?>
 
-
 <style>
-	div.json-beta-feature { display: none; }
+	/* div.json-beta-feature { display: none; } */
+	.json-beta-feature button::after { content: " (beta) "; color: #f00; font-weight: 700; }
 	pre.github-updater_json, pre.composer_json { padding:1em; background:#fff; border: 1px solid #ddd; }
 	button.upload-json { width: 100%; margin-top:1em; }
 	button.download-json { width: 100%; }
@@ -26,10 +31,13 @@ echo '<sub>Import/Export a "github-updater.json" file to be able to install plug
 echo '<br>';
 echo '<sub>See <a href="https://github.com/afragen/github-updater" target="_blank">Readme</a> for some usage information</sub>';
 
+$model = new GHUModel();
 $model->fill();
+$github_updater_json = $model->to_json();
 
-$github_updater_json = $model->to_json("github-updater");
-$composer_json = $model->to_json("composer");
+$model = new ComposerModel();
+$model->fill();
+$composer_json = $model->to_json();
 
 echo '<button type="button" value="upload" id="upload-json_file" class="upload-json button button-secondary">Upload a github-updater.json</button>';
 echo '<input id="json_file" type="file" accept=".json,application/json" hidden/>';
@@ -43,6 +51,7 @@ echo '<pre class="github-updater_json">'. $github_updater_json .'</pre>';
 echo '<div class="json-beta-feature">';
 echo '<h3 class="json-alternative">or</h3>';
 echo '<button type="button" value="download" id="download-composer_json" class="download-json button button-secondary">Download the following composer.json</button>';
+echo '<sub style="float:right;">NB: requires (Gitonomy, Symfony, and so on) for working properly</sub>';
 
 echo '<h4>composer.json</h4>';
 echo '<pre class="composer_json">'. $composer_json .'</pre>';

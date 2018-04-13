@@ -8,7 +8,7 @@
  * @link	 https://github.com/afragen/github-updater
  */
 
-namespace Fragen\GitHub_Updater\Model;
+namespace Fragen\GitHub_Updater\Model\JSON;
 
 use Fragen\GitHub_Updater\Model\Plugin\PluginInterface;
 use Fragen\GitHub_Updater\Model\Plugin\PluginFactory;
@@ -21,18 +21,15 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 /**
- * Class JSON Model
+ * Class Composer JSON Model
  *
- * Class that will handle custom json object "github-updater.json"
+ * Class that will handle custom json object "composer.json"
  * based on: https://github.com/tomjn/composerpress
  *
  * @package Fragen\GitHub_Updater
  */
-class JSON_Model
+class ComposerModel extends JSONModel
 {
-
-	// GitHub Updater
-	public $plugins;
 
 	// Composer
 	public $required;
@@ -46,10 +43,6 @@ class JSON_Model
 
 	public function __construct() {
 
-		// Init GitHub Updater Stuff
-
-		$this->plugins = array();
-
 		// Init Composer Stuff
 
 		$this->required = array();
@@ -61,41 +54,16 @@ class JSON_Model
 		$this->name = '';
 		$this->license = '';
 
-		$this->initialize_composer_manifest();
-	}
-
-	public function fill() {
-		$installed_plugins = get_plugins();
-		foreach ( $installed_plugins as $plugin_path => $plugin_data ) {
-			$this->add_plugin($plugin_path, $plugin_data);
-		}
-		//var_dump($installed_plugins);
+		$this->initialize_json_manifest();
 	}
 
 	public function add_plugin( $plugin_path, $plugin_data ) {
-
-		// THINGS TO REMEMBER:
-		// $slug = $plugin_path;																// eg. akismet/akismet.php
-		// $path = plugin_dir_path( $plugin_path );							// eg. akismet/
-		// $folder_name = basename($path);											// eg. akismet
-		// $fullpath = WP_CONTENT_DIR.'/plugins/'.$path;				// eg. www.example.com/wp-content/plugins/akismet/
-		// $filepath = WP_CONTENT_DIR.'/plugins/'.$plugin_path;	// eg. www.example.com/wp-content/plugins/akismet/akismet.php
-
 		$factory = new PluginFactory( $plugin_path, $plugin_data );
 
-		$plugin = $factory->create( "github-updater" );	// returns an Array() Object (TODO: use classes instead..)
-		$this->add_ghu_plugin( $plugin );								//populate "github-updater.json"
-
 		$plugin = $factory->create( "composer" );				// returns a PluginInterface Instance
-		$this->add_composer_plugin( $plugin );					//populate "composer.json"
 
-	}
+		//populate "composer.json"
 
-	public function add_ghu_plugin( $plugin = array() ) {
-		$this->plugins[] = $plugin;
-	}
-
-	public function add_composer_plugin( PluginInterface $plugin ) {
 		$remote_url = $plugin->get_url();
 		$reference = $plugin->get_reference();
 		$reponame = $plugin->get_name();
@@ -131,6 +99,7 @@ class JSON_Model
 		} else {
 			$this->required( $reponame, $version );
 		}
+
 	}
 
 	public function set_homepage( $homepage ) {
@@ -180,7 +149,7 @@ class JSON_Model
 		$this->required[ $package ] = $version;
 	}
 
-	public function initialize_composer_manifest() {
+	public function initialize_json_manifest() {
 		$this->required( 'johnpbloch/wordpress', '*@stable' );
 		$this->required( 'php', '>=5.3.2' );
 
@@ -194,7 +163,7 @@ class JSON_Model
 		$this->add_repository( 'composer', 'http://wpackagist.org' );
 	}
 
-	public function finalize_composer_manifest() {
+	public function finalize_json_manifest() {
 		$manifest = array();
 		$manifest['name'] = $this->name;
 		if ( !empty( $this->description ) ) {
@@ -221,17 +190,4 @@ class JSON_Model
 		return $manifest;
 	}
 
-	public function to_json( $json_type = "github-updater" ) {
-
-		switch ($json_type) {
-			case 'github-updater':
-				$json_object = $this->plugins;
-				break;
-			case 'composer':
-				$json_object = $this->finalize_composer_manifest();
-				break;
-		}
-
-		return json_encode( $json_object, ( JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT ) );;
-	}
 }
