@@ -28,6 +28,7 @@ class Init extends Base {
 	 */
 	public function run() {
 		$this->load_hooks();
+		WP_Dependency_Installer::instance()->run();
 
 		if ( static::is_wp_cli() ) {
 			include_once __DIR__ . '/WP-CLI/CLI.php';
@@ -45,6 +46,7 @@ class Init extends Base {
 		add_action( 'init', array( &$this, 'set_options_filter' ) );
 		add_action( 'wp_ajax_github-updater-update', array( &$this, 'ajax_update' ) );
 		add_action( 'wp_ajax_nopriv_github-updater-update', array( &$this, 'ajax_update' ) );
+
 		add_action( 'upgrader_process_complete', function() {
 			delete_site_option( 'ghu-' . md5( 'repos' ) );
 		} );
