@@ -93,3 +93,37 @@ add_action( 'admin_init', array( 'PAnD', 'init' ) );
 register_activation_hook( __FILE__, array( 'Fragen\\GitHub_Updater\\Init', 'install') );
 add_action('plugins_loaded', array( 'Fragen\\GitHub_Updater\\Rest_Log_Table', 'update_db_table')); // Trick to update database version of the plugin
 //
+
+/**
+ * Locate Frontend Template Files
+ *
+ * Locate the called template.
+ * Search Order:
+ * 1. /wp-content/themes/theme/plugins/github-updater/templates/$template_name
+ * 2. /wp-content/plugins/github-updater/src/templates/$template_name.
+ *
+ * @link https://jeroensormani.com/how-to-add-template-files-in-your-plugin/
+ *
+ * @param 	string 	$template_name			Template to load.
+ * @param 	string 	$string $template_path	Path to templates.
+ * @param 	string	$default_path			Default path to template files.
+ * @return 	string 							Path to the template file.
+ *
+ */
+function ghu_locate_template( $template_name, $template_path = '', $default_path = '' ) {
+	// Set variable to search in templates folder of theme.
+	if ( ! $template_path ) :
+		$template_path = 'plugins/github-updater/templates/';
+	endif;
+	// Set default plugin templates path.
+	if ( ! $default_path ) :
+		$default_path = plugin_dir_path( __FILE__ ) . 'src/templates/'; // Path to the template folder
+	endif;
+	// Search template file in theme folder.
+	$template = locate_template( array( $template_path . $template_name ) );
+	// Get plugins template file.
+	if ( ! $template ) :
+		$template = $default_path . $template_name;
+	endif;
+	return apply_filters( 'ghu_locate_template', $template, $template_name, $template_path, $default_path );
+}
