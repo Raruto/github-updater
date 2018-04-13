@@ -11,7 +11,7 @@
 namespace Fragen\GitHub_Updater;
 
 use Fragen\Singleton;
-
+use Fragen\GitHub_Updater\Model\JSON_Model;
 
 /*
  * Exit if called directly.
@@ -103,6 +103,7 @@ class Settings extends Base {
 			'github_updater_install_plugin'    => esc_html__( 'Install Plugin', 'github-updater' ),
 			'github_updater_install_theme'     => esc_html__( 'Install Theme', 'github-updater' ),
 			'github_updater_remote_management' => esc_html__( 'Remote Management', 'github-updater' ),
+			'github_updater_mass_import_export' => esc_html__( 'Mass Import/Export', 'github-updater' ),
 			'github_updater_faq' => esc_html__( 'FAQ', 'github-updater' ),
 		);
 	}
@@ -203,168 +204,44 @@ class Settings extends Base {
 		$tab    = isset( $_GET['tab'] ) ? $_GET['tab'] : 'github_updater_settings';
 		$subtab = isset( $_GET['subtab'] ) ? $_GET['subtab'] : 'github_updater';
 		$logo   = plugins_url( basename( dirname( dirname( __DIR__ ) ) ) . '/assets/GitHub_Updater_logo_small.png' );
-		?>
-		<div class="wrap github-updater-settings">
-			<h1>
-				<a href="https://github.com/afragen/github-updater" target="_blank"><img src="<?php esc_attr_e( $logo ); ?>" alt="GitHub Updater logo" /></a><br>
-				<?php esc_html_e( 'GitHub Updater', 'github-updater' ); ?>
-			</h1>
-			<?php $this->options_tabs(); ?>
-			<?php if ( ! isset( $_GET['settings-updated'] ) ): ?>
-				<?php if ( ( isset( $_GET['updated'] ) && '1' === $_GET['updated'] ) && is_multisite() ): ?>
-					<div class="updated">
-						<p><?php esc_html_e( 'Settings saved.', 'github-updater' ); ?></p>
-					</div>
-				<?php elseif ( isset( $_GET['reset'] ) && '1' === $_GET['reset'] ): ?>
-					<div class="updated">
-						<p><?php esc_html_e( 'RESTful key reset.', 'github-updater' ); ?></p>
-					</div>
-				<?php elseif ( isset( $_GET['refresh_transients'] ) && '1' === $_GET['refresh_transients'] ) : ?>
-					<div class="updated">
-						<p><?php esc_html_e( 'Cache refreshed.', 'github-updater' ); ?></p>
-					</div>
-				<?php endif; ?>
 
-				<?php if ( 'github_updater_settings' === $tab ) : ?>
-					<?php $this->options_sub_tabs(); ?>
-					<form class="settings" method="post" action="<?php esc_attr_e( $action ); ?>">
-						<?php
-						settings_fields( 'github_updater' );
-						switch ( $subtab ) {
-							case 'github':
-							case 'bitbucket':
-							case 'bbserver':
-							case 'gitlab':
-							case 'gitea':
-								do_settings_sections( 'github_updater_' . $subtab . '_install_settings' );
-								$this->display_ghu_repos( $subtab );
-								$this->add_hidden_settings_sections( $subtab );
-								break;
-							default:
-								do_settings_sections( 'github_updater_install_settings' );
-								$this->add_hidden_settings_sections();
-								break;
-						}
-						submit_button();
-						?>
-					</form>
-					<?php $refresh_transients = add_query_arg( array( 'github_updater_refresh_transients' => true ), $action ); ?>
-					<form class="settings" method="post" action="<?php esc_attr_e( $refresh_transients ); ?>">
-						<?php submit_button( esc_html__( 'Refresh Cache', 'github-updater' ), 'primary', 'ghu_refresh_cache' ); ?>
-					</form>
-				<?php endif; ?>
-			<?php endif; ?>
+		include ghu_locate_template( "settings-page-before.php" );
 
-			<?php
-			if ( 'github_updater_install_plugin' === $tab ) {
+		if ( ! isset( $_GET['settings-updated'] ) ){
+			include ghu_locate_template( "settings-messages.php" );
+			if ( 'github_updater_settings' === $tab ) {
+			 include ghu_locate_template( "settings.php" );
+		 }
+		}
 
-				printf(
-					'<p>' . esc_html__( "Refer to %s for more details on remote %s installations", 'github-updater' ) . '</p><hr>',
-					'<a href="https://github.com/afragen/github-updater/wiki/Remote-Installation" target="_blank">wiki</a>',
-					'plugin'
-				);
+		if ( 'github_updater_install_plugin' === $tab ) {
+			include ghu_locate_template( "install_plugin.php" );
+			Singleton::get_instance( 'Install', $this )->install( 'plugin' );
+		}
 
-				Singleton::get_instance( 'Install', $this )->install( 'plugin' );
-			}
-			if ( 'github_updater_install_theme' === $tab ) {
+		if ( 'github_updater_install_theme' === $tab ) {
+			include ghu_locate_template( "install_theme.php" );
+			Singleton::get_instance( 'Install', $this )->install( 'theme' );
+		}
 
-				printf(
-					'<p>' . esc_html__( "Refer to %s for more details on remote %s installations", 'github-updater' ) . '</p><hr>',
-					'<a href="https://github.com/afragen/github-updater/wiki/Remote-Installation" target="_blank">wiki</a>',
-					'theme'
-				);
+			if ( 'github_updater_remote_management' === $tab ) {
+			$action = add_query_arg( 'tab', $tab, $action );
+			$table = new Rest_Log_Table();
+			include ghu_locate_template( "remote_management.php" );
+		}
 
-				Singleton::get_instance( 'Install', $this )->install( 'theme' );
-			}
-			?>
-			<?php if ( 'github_updater_remote_management' === $tab ) : ?>
-				<?php $action = add_query_arg( 'tab', $tab, $action ); ?>
+		if ( 'github_updater_mass_import_export' === $tab ) {
+			$action = add_query_arg( 'tab', $tab, $action );
+			$model = new JSON_Model();
+			include ghu_locate_template( "mass_import_export.php" );
+		}
 
-				<form class="settings" method="post" action="<?php esc_attr_e( $action ); ?>">
-					<?php
-					settings_fields( 'github_updater_remote_management' );
-					do_settings_sections( 'github_updater_remote_settings' );
-					submit_button();
-					?>
-				</form>
-				<?php $reset_api_action = add_query_arg( array( 'github_updater_reset_api_key' => true ), $action ); ?>
-				<form class="settings no-sub-tabs" method="post" action="<?php esc_attr_e( $reset_api_action ); ?>">
-					<?php submit_button( esc_html__( 'Reset RESTful key', 'github-updater' ) ); ?>
-				</form>
-				<?php
-					$table = new Rest_Log_Table();
-					$table->output();
-				?>
-			<?php endif; ?>
+		if ( 'github_updater_faq' === $tab ) {
+			$action = add_query_arg( 'tab', $tab, $action );
+			include ghu_locate_template( "faq.php" );
+		}
 
-			<?php if ( 'github_updater_faq' === $tab ) : ?>
-				<?php $action = add_query_arg( 'tab', $tab, $action ); ?>
-				<p>
-					<?php
-						printf(esc_html__('FAQs are actively under construction, for any other doubts refer to: %s, %s, %s', 'github-updater'),
-							'<a href="https://github.com/afragen/github-updater/wiki" target="_blank">wiki</a>',
-							'<a href="https://github.com/afragen/github-updater/issues" target="_blank">github</a>',
-							'<a href="https://github-updater.herokuapp.com/" target="_blank">slack</a>'
-						);
-					?>
-				</p>
-				<hr>
-				<h3><?php print(esc_html__('Wiki Pages', 'github-updater')); ?></h3>
-				<ol>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Home">Home</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/General-Usage">General Usage</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Installation">Installation</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Settings">Settings</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Usage">Usage</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Background-Processing">Background Processing</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Self-Hosted-or-Enterprise-Installations">Self-Hosted or Enterprise Installations</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Versions-and-Branches">Versions and Branches</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Language-Packs">Language Packs</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Remote-Installation">Remote Installation</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Remote-Management---RESTful-Endpoints">Remote Management / RESTful Endpoints</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/WP-CLI">WP-CLI Support</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Messages">Messages</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/WordPress.org-Directory">WordPress.org Directory</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Developer-Hooks">Developer Hooks</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Translations">Translations</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/wiki/Extras-and-Credits">Extras and Credits</a></li>
-				</ol>
-				<hr>
-				<h3><?php print(esc_html__('Known issues', 'github-updater')); ?></h3>
-				<ul style="list-style:initial; margin-left:2%;">
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/663">GitLab Webhook Timeout Issues</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/662">Bitbucket credentials not persisting</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/637">GitHubupdater keeps overwriting his own settings</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/540">Beanstalk?</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/540">Feature: Build installable zip on release</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/292">Does github-updater work with Gogs?</a></li>
-				</ul>
-				<hr>
-				<h3><?php print(esc_html__('Calls to action', 'github-updater')); ?></h3>
-				<ul style="list-style:initial; margin-left:2%;">
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/470">Translations now using Language Pack updates</a></li>
-					<li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/339">Travis-CI and Unit Tests</a></li>
-				</ul>
-				<hr>
-				<sub style="float:right; text-align:center;">
-				<?php
-					printf(
-						esc_html__('GHU is a free software release under the %s', 'github-updater'),
-						'<a href="https://github.com/afragen/github-updater/blob/master/LICENSE" target="_blank">"GNU General Public License v2.0"</a>'
-					);
-				?>
-				<br>
-				<?php
-					printf(
-						esc_html__('feel free to %s or %s to the plugin\'s author', 'github-updater'),
-						'<a href="https://github.com/afragen/github-updater" target="_blank">contribute</a>',
-						'<a href="http://thefragens.com/github-updater-donate" target="_blank">donate</a>'
-					);
-				?>
-			</sub>
-			<?php endif; ?>
-		</div>
-		<?php
+		include ghu_locate_template( "settings-page-after.php" );
 	}
 
 	/**
