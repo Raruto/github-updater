@@ -27,9 +27,9 @@ use Fragen\GitHub_Updater\Model\JSON\ComposerModel;
 echo '<div class="wrap">';
 
 // Readme.md link reminder
-echo '<sub>Import/Export a "github-updater.json" file to be able to install plugins (here or somewhere else)</sub>';
+echo '<sub>Here you can Import/Export a "github-updater.json" file to be able to easily install plugins (here or somewhere else)</sub>';
 echo '<br>';
-echo '<sub>See <a href="https://github.com/afragen/github-updater" target="_blank">Readme</a> for some usage information</sub>';
+echo '<sub>See <a href="https://github.com/afragen/github-updater" target="_blank">Readme</a> for more usage information</sub>';
 
 $model = new GHUModel();
 $model->fill();
