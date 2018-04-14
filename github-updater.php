@@ -48,9 +48,9 @@ define("GHU_TABLE_LOGS", "ghu_logs");
 /**
  * Useful path constants
  */
-define('GHU_PLUGIN_FILE', __FILE__);
-define('GHU_PLUGIN_ROOT', dirname(__FILE__) . '/');
-define('GHU_PLUGIN_NAME', basename(dirname(__FILE__)) . '/' . basename(__FILE__));
+define('GHU_PLUGIN_FILE', __FILE__); 																								// eg: www.example.com/wp-content/plugins/github-updater/github-updater.php
+define('GHU_PLUGIN_ROOT', dirname(__FILE__) . '/'); 																// eg: www.example.com/wp-content/plugins/github-updater/
+define('GHU_PLUGIN_NAME', basename(dirname(__FILE__)) . '/' . basename(__FILE__));	// eg: github-updater/github-updater.php
 
 if ( version_compare( '5.3.0', PHP_VERSION, '>=' ) ) {
 	?>
