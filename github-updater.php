@@ -45,6 +45,13 @@ define("GHU_DB_VERSION", "0.0");
  */
 define("GHU_TABLE_LOGS", "ghu_logs");
 
+/**
+ * Useful path constants
+ */
+define('GHU_PLUGIN_FILE', __FILE__);
+define('GHU_PLUGIN_ROOT', dirname(__FILE__) . '/');
+define('GHU_PLUGIN_NAME', basename(dirname(__FILE__)) . '/' . basename(__FILE__));
+
 if ( version_compare( '5.3.0', PHP_VERSION, '>=' ) ) {
 	?>
 	<div class="error notice is-dismissible">

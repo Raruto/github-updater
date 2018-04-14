@@ -202,7 +202,7 @@ class Settings extends Base {
 		$action = is_multisite() ? 'edit.php?action=github-updater' : 'options.php';
 		$tab    = isset( $_GET['tab'] ) ? $_GET['tab'] : 'github_updater_settings';
 		$subtab = isset( $_GET['subtab'] ) ? $_GET['subtab'] : 'github_updater';
-		$logo   = plugins_url( basename( dirname( dirname( __DIR__ ) ) ) . '/assets/GitHub_Updater_logo_small.png' );
+		$logo   = plugins_url('/assets/GitHub_Updater_logo_small.png', GHU_PLUGIN_NAME);
 
 		include ghu_locate_template( "settings-page-before.php" );
 
