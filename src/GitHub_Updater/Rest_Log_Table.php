@@ -211,7 +211,7 @@ class Rest_Log_Table extends \WP_List_Table
 		{
 			$table = $this;
 			$table->prepare_items();
-			ghu_locate_template("rest-log-table.php");
+			include ghu_locate_template("rest-log-table.php");
 		}
 
 		/**
