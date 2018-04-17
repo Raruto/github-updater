@@ -7,6 +7,12 @@
  * @license	GPL-2.0+
  * @link	 https://github.com/afragen/github-updater
  */
+
+use Fragen\GitHub_Updater\Rest_Log_table;
+
+$action = add_query_arg( 'tab', $tab, $action );
+$table = new Rest_Log_Table();
+
 ?>
 
 <form class="settings" method="post" action="<?php esc_attr_e( $action ); ?>">

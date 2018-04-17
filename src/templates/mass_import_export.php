@@ -13,6 +13,7 @@ use Fragen\GitHub_Updater\Model\JSON\GHUModel;
 use Fragen\GitHub_Updater\Model\JSON\ComposerModel;
 use Fragen\GitHub_Updater\WP_Dependency_Installer;
 
+$action = add_query_arg( 'tab', $tab, $action );
 ?>
 
 <style>
@@ -36,9 +37,13 @@ $model = new GHUModel();
 $model->fill();
 $github_updater_json = $model->to_json();
 
-$model = new ComposerModel();
-$model->fill();
-$composer_json = $model->to_json();
+if(class_exists("Gitonomy\\Git\\Repository")) {
+	$model = new ComposerModel();
+	$model->fill();
+	$composer_json = $model->to_json();
+} else {
+	$composer_json = "\"Gitonomy\" is required for working properly";
+}
 
 if(WP_Dependency_Installer::instance()->is_running_config()){
 	echo '<button type="button" value="delete" id="delete-json_file" class="delete-json button button-secondary">Delete currently uploaded github-updater.json configuration file</button>';

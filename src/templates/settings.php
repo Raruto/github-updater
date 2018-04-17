@@ -8,6 +8,8 @@
  * @link	 https://github.com/afragen/github-updater
  */
 
+ $action = $this->get_action_tab();
+
  $this->options_sub_tabs();
  ?>
  <form class="settings" method="post" action="<?php esc_attr_e( $action ); ?>">

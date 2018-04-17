@@ -7,6 +7,9 @@
  * @license	GPL-2.0+
  * @link	 https://github.com/afragen/github-updater
  */
+
+ $action = add_query_arg( 'tab', $tab, $action );
+
 ?>
 
  <p>

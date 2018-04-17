@@ -8,8 +8,12 @@
  * @link	 https://github.com/afragen/github-updater
  */
 
+use Fragen\Singleton;
+
 printf(
 	'<p>' . esc_html__( "Refer to %s for more details on remote %s installations", 'github-updater' ) . '</p><hr>',
 	'<a href="https://github.com/afragen/github-updater/wiki/Remote-Installation" target="_blank">wiki</a>',
 	'plugin'
 );
+
+Singleton::get_instance( 'Install', $this )->install( 'plugin' );

@@ -167,9 +167,9 @@ class Settings extends Base {
 	 * Walks through the object's tabs array and prints them one by one.
 	 * Provides the heading for the settings page.
 	 *
-	 * @access private
+	 * @access public
 	 */
-	private function options_tabs() {
+	public function options_tabs() {
 		$current_tab = isset( $_GET['tab'] ) ? $_GET['tab'] : 'github_updater_settings';
 		echo '<h2 class="nav-tab-wrapper">';
 		foreach ( $this->settings_tabs() as $key => $name ) {
@@ -196,47 +196,80 @@ class Settings extends Base {
 	}
 
 	/**
+	 * Retrieve current action tab
+	 *
+	 * @access public
+	 * @return String action
+	 */
+	public function get_action_tab() {
+		return is_multisite() ? 'edit.php?action=github-updater' : 'options.php';
+	}
+
+	/**
+	 * Retrieve current tab
+	 *
+	 * @access public
+	 * @return String tab
+	 */
+	public function get_tab() {
+		return isset( $_GET['tab'] ) ? $_GET['tab'] : 'github_updater_settings';
+	}
+
+	/**
+	 * Retrieve current subtab
+	 *
+	 * @access public
+	 * @return String subtab
+	 */
+	public function get_subtab() {
+		return isset( $_GET['subtab'] ) ? $_GET['subtab'] : 'github_updater';
+	}
+
+	/**
+	 * Retrieve GitHub Updater logo url
+	 *
+	 * @access public
+	 * @return String url
+	 */
+	public function get_logo_url() {
+		return plugins_url('/assets/GitHub_Updater_logo_small.png', GHU_PLUGIN_NAME);
+	}
+
+	/**
 	 * Options page callback.
 	 */
 	public function create_admin_page() {
-		$action = is_multisite() ? 'edit.php?action=github-updater' : 'options.php';
-		$tab    = isset( $_GET['tab'] ) ? $_GET['tab'] : 'github_updater_settings';
-		$subtab = isset( $_GET['subtab'] ) ? $_GET['subtab'] : 'github_updater';
-		$logo   = plugins_url('/assets/GitHub_Updater_logo_small.png', GHU_PLUGIN_NAME);
+		$action = $this->get_action_tab();
+		$tab    = $this->get_tab();
+		$subtab = $this->get_subtab();
 
 		include ghu_locate_template( "settings-page-before.php" );
 
 		if ( ! isset( $_GET['settings-updated'] ) ){
 			include ghu_locate_template( "settings-messages.php" );
-			if ( 'github_updater_settings' === $tab ) {
-			 include ghu_locate_template( "settings.php" );
-		 }
 		}
 
-		if ( 'github_updater_install_plugin' === $tab ) {
-			include ghu_locate_template( "install_plugin.php" );
-			Singleton::get_instance( 'Install', $this )->install( 'plugin' );
-		}
-
-		if ( 'github_updater_install_theme' === $tab ) {
-			include ghu_locate_template( "install_theme.php" );
-			Singleton::get_instance( 'Install', $this )->install( 'theme' );
-		}
-
-			if ( 'github_updater_remote_management' === $tab ) {
-			$action = add_query_arg( 'tab', $tab, $action );
-			$table = new Rest_Log_Table();
-			include ghu_locate_template( "remote_management.php" );
-		}
-
-		if ( 'github_updater_mass_import_export' === $tab ) {
-			$action = add_query_arg( 'tab', $tab, $action );
-			include ghu_locate_template( "mass_import_export.php" );
-		}
-
-		if ( 'github_updater_faq' === $tab ) {
-			$action = add_query_arg( 'tab', $tab, $action );
-			include ghu_locate_template( "faq.php" );
+		switch ($tab) {
+			case 'github_updater_settings':
+				if ( ! isset( $_GET['settings-updated'] ) ) {
+					include ghu_locate_template( "settings.php" );
+				}
+				break;
+			case 'github_updater_install_plugin':
+				include ghu_locate_template( "install_plugin.php" );
+				break;
+			case 'github_updater_install_theme':
+				include ghu_locate_template( "install_theme.php" );
+				break;
+			case 'github_updater_remote_management':
+				include ghu_locate_template( "remote_management.php" );
+				break;
+			case 'github_updater_mass_import_export':
+				include ghu_locate_template( "mass_import_export.php" );
+				break;
+			case 'github_updater_faq':
+				include ghu_locate_template( "faq.php" );
+				break;
 		}
 
 		include ghu_locate_template( "settings-page-after.php" );

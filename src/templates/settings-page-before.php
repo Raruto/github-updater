@@ -7,6 +7,11 @@
  * @license	GPL-2.0+
  * @link	 https://github.com/afragen/github-updater
  */
+
+//TODO: manage better..
+$settings = $this;
+
+$logo = $settings->get_logo_url();
 ?>
 
 <div class="wrap github-updater-settings">
@@ -15,4 +20,4 @@
 	 <?php esc_html_e( 'GitHub Updater', 'github-updater' ); ?>
  </h1>
 
-<?php $this->options_tabs(); ?>
+<?php $settings->options_tabs(); ?>
