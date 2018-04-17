@@ -28,6 +28,7 @@ class Init extends Base {
 	 */
 	public function run() {
 		$this->load_hooks();
+
 		WP_Dependency_Installer::instance()->run();
 
 		if ( static::is_wp_cli() ) {
@@ -130,9 +131,17 @@ class Init extends Base {
 	/**
 	* Runs via plugin activation hook
 	*/
-	public static function install()
+	public static function on_register_activation_hook()
 	{
-		Rest_Log_Table::update_db_table(); // create a database table ("ghu-logs")
+		Rest_Log_Table::update_db_table(); // Create a database table ("ghu-logs")
+	}
+
+	/**
+	* Runs on wordpress plugins loaded
+	*/
+	public static function on_plugins_loaded()
+	{
+		Rest_Log_Table::update_db_table(); // Trick to update database version of the plugin
 	}
 
 }
