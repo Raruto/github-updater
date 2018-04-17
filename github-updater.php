@@ -89,6 +89,18 @@ $ghu['instantiate'] = 'Fragen\\GitHub_Updater\\Init';
 $ghu['init']        = new $ghu['instantiate'];
 $ghu['init']->run();
 
+
+ghu_loadPackage(__DIR__."/vendor/gitonomy/gitlib");
+// new $ghu['loader'](
+// 	array( 'Gitonomy\\Git\\' => __DIR__ . '/vendor/gitonomy/gitlib/src/Gitonomy/Git' ),
+// 	array( 'Gitonomy\Git\Repository' => __DIR__ . '/vendor/gitonomy/gitlib/src/Gitonomy/Git/Repository.php' )
+// );
+ghu_loadPackage(__DIR__."/vendor/symfony/process");
+// new $ghu['loader'](
+// 	array( 'Symfony\\Component\\Process\\' => __DIR__ . '/vendor/symfony/process' ),
+// 	array( 'Symfony\Component\Process\Process' => __DIR__ . '/vendor/symfony/process/Process.php' )
+// );
+
 /**
  * Initialize Persist Admin notices Dismissal.
  *
@@ -133,3 +145,36 @@ function ghu_locate_template( $template_name, $template_path = '', $default_path
 	return apply_filters( 'ghu_locate_template', $template, $template_name, $template_path, $default_path );
 }
 //
+
+/**
+ * Composer File Loader - allow you to load composer.json file just as composer would do it.
+ *
+ * @link https://stackoverflow.com/questions/39571391/psr4-auto-load-without-composer/39774973#39774973
+ * @param  String $dir
+ */
+function ghu_loadPackage($dir)
+{
+    $composer = json_decode(file_get_contents("$dir/composer.json"), 1);
+    $namespaces = $composer['autoload']['psr-4'];
+
+    // Foreach namespace specified in the composer, load the given classes
+    foreach ($namespaces as $namespace => $classpaths) {
+        if (!is_array($classpaths)) {
+            $classpaths = array($classpaths);
+        }
+        spl_autoload_register(function ($classname) use ($namespace, $classpaths, $dir) {
+            // Check if the namespace matches the class we are looking for
+            if (preg_match("#^".preg_quote($namespace)."#", $classname)) {
+                // Remove the namespace from the file path since it's psr4
+                $classname = str_replace($namespace, "", $classname);
+                $filename = preg_replace("#\\\\#", "/", $classname).".php";
+                foreach ($classpaths as $classpath) {
+                    $fullpath = $dir."/".$classpath."/$filename";
+                    if (file_exists($fullpath)) {
+                        include_once $fullpath;
+                    }
+                }
+            }
+        });
+    }
+}
