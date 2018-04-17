@@ -97,10 +97,8 @@ $ghu['init']->run();
 add_action( 'admin_init', array( 'PAnD', 'init' ) );
 
 // TODO: move in a better place
-register_activation_hook( __FILE__, array( 'Fragen\\GitHub_Updater\\Init', 'install') );
-add_action('plugins_loaded', array( 'Fragen\\GitHub_Updater\\Rest_Log_Table', 'update_db_table')); // Trick to update database version of the plugin
-//
-
+register_activation_hook( __FILE__, array( 'Fragen\\GitHub_Updater\\Init', 'on_register_activation_hook') );
+add_action('plugins_loaded', array( 'Fragen\\GitHub_Updater\\Init', 'on_plugins_loaded'));
 /**
  * Locate Frontend Template Files
  *
@@ -134,3 +132,4 @@ function ghu_locate_template( $template_name, $template_path = '', $default_path
 	endif;
 	return apply_filters( 'ghu_locate_template', $template, $template_name, $template_path, $default_path );
 }
+//
