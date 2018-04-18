@@ -138,9 +138,6 @@ if ( ! defined( 'WPINC' ) ) {
 		 */
 		public function apply_config() {
 			foreach ( $this->config as $dependency ) {
-
-				error_log(print_r($dependency,true));
-
 				$download_link = null;
 
 				// FIXME: Some automatically generated json files have
@@ -198,12 +195,6 @@ if ( ! defined( 'WPINC' ) ) {
 			// Generate admin notices.
 			foreach ( $this->config as $slug => $dependency ) {
 				$is_optional = ! ( isset( $dependency['optional'] ) && ( false === $dependency['optional'] || "false" == $dependency['optional'] ));
-
-				error_log($slug);
-				error_log($dependency['optional']);
-				error_log($is_optional);
-
-
 
 				if ( ! $is_optional ) {
 					$this->hide_plugin_action_links( $slug );
