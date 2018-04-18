@@ -58,7 +58,7 @@ echo '<pre class="github-updater_json">'. $github_updater_json .'</pre>';
 echo '<div class="json-beta-feature">';
 echo '<h3 class="json-alternative">or</h3>';
 echo '<button type="button" value="download" id="download-composer_json" class="download-json button button-secondary">Download the following composer.json</button>';
-echo '<sub style="float:right;">NB: requires (Gitonomy, Symfony, and so on) for working properly</sub>';
+echo '<sub style="float:right;">NB: actually wpackagist doesn\'t provide an easy way to check if a plugin is really present on their repo, please be patient..</sub>';
 
 echo '<h4>composer.json</h4>';
 echo '<pre class="composer_json">'. $composer_json .'</pre>';
