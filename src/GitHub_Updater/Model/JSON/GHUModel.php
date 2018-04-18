@@ -46,7 +46,22 @@ class GHUModel extends JSONModel
 
 		//populate "github-updater.json"
 
-		$this->plugins[] = $plugin;
+		$plug = array();
+
+		$plug['name'] = $plugin->get_name();
+		$plug['host'] = $plugin->get_hostname();
+		$plug['slug'] = $plugin->get_plugin_path();
+		if($plugin->has_plugin_uri()){
+			$plug['uri'] = $plugin->get_plugin_uri();
+		}
+		$plug['branch'] = $plugin->get_branch();
+		$plug['version'] = $plugin->get_version();
+		if($plugin->has_token()){
+			$plug['token'] = $plugin->get_token();
+		}
+		$plug['optional'] = !is_plugin_active( $plugin->get_plugin_path() ); // Optional if the plugin is inactive
+
+		$this->plugins[] = $plug;
 	}
 
 	public function initialize_json_manifest() {

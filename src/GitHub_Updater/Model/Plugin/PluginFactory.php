@@ -29,45 +29,70 @@ class PluginFactory
 
 		public function create( $type = "github-updater") {
 
-		switch ($type) {
-			case 'github-updater':
-				$plugin = $this->create_GHUObj();
-				break;
-			case 'composer':
-				$plugin = $this->create_ComposerObj();
-				break;
-			}
+			$plugin_path = $this->plugin_path;
+			$plugin_data = $this->plugin_data;
 
+			$type = $this->guess_type( $plugin_path, $plugin_data );
+			switch ($type) {
+				case 'git':
+					$plugin = new GitPlugin($plugin_path, $plugin_data);
+					break;
+				case 'github':
+					$plugin = new GitHubPlugin($plugin_path, $plugin_data);
+					break;
+				case 'gitlab':
+					$plugin = new GitLabPlugin($plugin_path, $plugin_data);
+					break;
+				case 'bitbucket':
+					$plugin = new BitbucketPlugin($plugin_path, $plugin_data);
+					break;
+				case 'gitea':
+					$plugin = new GiteaPlugin($plugin_path, $plugin_data);
+					break;
+				case 'wordpress':
+					$plugin = new GitPlugin($plugin_path, $plugin_data);
+					break;
+				case 'mercurial':
+					$plugin = new MercurialPlugin($plugin_path, $plugin_data);
+					break;
+				case 'subversion':
+					$plugin = new MercurialPlugin($plugin_path, $plugin_data);
+					break;
+				case 'mercurial':
+					$plugin = new MercurialPlugin($plugin_path, $plugin_data);
+					break;
+				default:
+					$plugin = new GitPlugin($plugin_path, $plugin_data);
+					break;
+			};
 			return $plugin;
-
 		}
 
-		protected function create_GHUObj() {
-			$plugin = array();
+		public static function guess_type( $plugin_path, $plugin_data ) {
+			$git = "git";
+			$github = "github";
+			$gitlab = "gitlab";
+			$bitbucket = "bitbucket";
+			$gitea = "gitea";
+			$wp_org = "wordpress";
+			$mercurial = "mercurial";
+			$subversion = "subversion";
+			$wpackagist = "wpackagist";
 
-			$plugin_path = $this->plugin_path;
-			$plugin_data =  $this->plugin_data;
-
-			$slug = $plugin_path;											// eg. akismet/akismet.php
-			$path = plugin_dir_path( $plugin_path );	// eg. akismet/
-			$folder_name = basename($path);						// eg. akismet
-
-			$github = false;
-			$gitlab = false;
-			$bitbucket = false;
-			$gitea = false;
-			$wp_org = false;
+			$folder = plugin_dir_path( $plugin_path );			// eg. akismet/
+			$slug = dirname($plugin_path);									// eg. akismet
+			$fullpath = WP_CONTENT_DIR.'/plugins/'.$folder;	// eg. www.example.com/wp-content/plugins/akismet/
 
 			// Trying to detect plugin's source
 
 			if( !empty($plugin_data['GitHub Plugin URI']) )
-				$github = true;
+				return $github;
 			if( !empty($plugin_data['GitLab Plugin URI']) )
-				$gitlab = true;
+				return $gitlab;
 			if( !empty($plugin_data['Bitbucket Plugin URI']) )
-				$bitbucket = true;
+				return $bitbucket;
 			if( !empty($plugin_data['Gitea Plugin URI']) )
-				$gitea = true;
+				return $gitea;
 			if( !empty($plugin_data['PluginURI']) ){
 
 				// Becasue some plugins doesn't use GitHub Updater Headers
@@ -75,106 +100,31 @@ class PluginFactory
 				// other than wp.org
 
 				if( strpos($plugin_data['PluginURI'], "wordpress.org") > 0 )
-					$wp_org = true;
+					return $wp_org;
 				else if( strpos($plugin_data['PluginURI'], "github.com") > 0 )
-					$github = true;
+					return $github;
 				else if( strpos($plugin_data['PluginURI'], "gitlab.com") > 0 )
-					$gitlab = true;
+					return $gitlab;
 				else if( strpos($plugin_data['PluginURI'], "bitbucket.org") > 0 )
-					$bitbucket = true;
+					return $bitbucket;
 				else if( strpos($plugin_data['PluginURI'], "gitea.io") > 0 )
-					$gitea = true;
+					return $gitea;
 
 			}
 
-			// Populate plugin array
-
-			if( $wp_org ) {
-				$plugin['name'] = $folder_name;
-				$plugin['host'] = "wordpress";
-				$plugin['slug'] = $plugin_path;
-				$plugin['uri'] = $plugin_data['PluginURI'];
-				$plugin['version'] = $plugin_data['Version'];
-				$plugin['optional'] = !is_plugin_active( $plugin_path ); // Optional if the plugin is inactive
-			}
-			if( $github ) {
-				$plugin['name'] = $folder_name;
-				$plugin['host'] = "github";
-				$plugin['slug'] = $plugin_path;
-				$plugin['uri'] = !empty($plugin_data['GitHub Plugin URI']) ? $plugin_data['GitHub Plugin URI'] : $plugin_data['PluginURI'];
-				$plugin['branch'] = !empty($plugin_data['GitHub Branch']) ? $plugin_data['GitHub Branch'] : "master";
-				$plugin['version'] = $plugin_data['Version'];
-				$plugin['token'] = !empty($plugin_data['GitHub Access Token']) ? $plugin_data['GitHub Access Token'] : null;
-				$plugin['optional'] = !is_plugin_active( $plugin_path ); // Optional if the plugin is inactive
-			}
-			if( $gitlab ) {
-				$plugin['name'] = $folder_name;
-				$plugin['host'] = "gitlab";
-				$plugin['slug'] = $plugin_path;
-				$plugin['uri'] = !empty($plugin_data['GitLab Plugin URI']) ? $plugin_data['GitLab Plugin URI'] : $plugin_data['PluginURI'];
-				$plugin['branch'] = !empty($plugin_data['GitLab Branch']) ? $plugin_data['GitLab Branch'] : "master";
-				$plugin['version'] = $plugin_data['Version'];
-				$plugin['token'] = !empty($plugin_data['GitLab Access Token']) ? $plugin_data['GitLab Access Token'] : null;
-				$plugin['optional'] = !is_plugin_active( $plugin_path ); // Optional if the plugin is inactive
-			}
-			if( $bitbucket ) {
-				$plugin['name'] = $folder_name;
-				$plugin['host'] = "bitbucket";
-				$plugin['slug'] = $plugin_path;
-				$plugin['uri'] = !empty($plugin_data['Bitbucket Plugin URI']) ? $plugin_data['Bitbucket Plugin URI'] : $plugin_data['PluginURI'];
-				$plugin['branch'] = !empty($plugin_data['Bitbucket Branch']) ? $plugin_data['Bitbucket Branch'] : "master";
-				$plugin['version'] = $plugin_data['Version'];
-				$plugin['token'] = !empty($plugin_data['Bitbucket Access Token']) ? $plugin_data['Bitbucket Access Token'] : null;
-				$plugin['optional'] = !is_plugin_active( $plugin_path ); // Optional if the plugin is inactive
-			}
-			if( $gitea ) {
-				$plugin['name'] = $folder_name;
-				$plugin['host'] = "gitea";
-				$plugin['slug'] = $plugin_path;
-				$plugin['uri'] = !empty($plugin_data['Gitea Plugin URI']) ? $plugin_data['Gitea Plugin URI'] : $plugin_data['PluginURI'];
-				$plugin['branch'] = !empty($plugin_data['Gitea Branch']) ? $plugin_data['Gitea Branch'] : "master";
-				$plugin['version'] = $plugin_data['Version'];
-				$plugin['token'] = !empty($plugin_data['Gitea Access Token']) ? $plugin_data['Gitea Access Token'] : null;
-				$plugin['optional'] = !is_plugin_active( $plugin_path ); // Optional if the plugin is inactive
-			}
-
-			if ( $github == false && $gitlab == false && $bitbucket == false && $gitea == false & $wp_org == false ) {
-				$plugin['name'] =  $folder_name;
-				$plugin['host'] = "uknown";
-				$plugin['slug'] = $plugin_path;
-				//$plugin['uri'] = $plugin_data['PluginURI'];
-				$plugin['version'] = $plugin_data['Version'];
-				$plugin['optional'] = !is_plugin_active( $plugin_path ); // Optional if the plugin is inactive
-			}
-
-			return $plugin;
-
-		}
-
-		protected function create_ComposerObj() {
-			// if ( !is_plugin_active( $plugin_path ) ) {
-			// 	return;
-			// }
-
-			$plugin_path = $this->plugin_path;
-			$plugin_data =  $this->plugin_data;
-
-			$path = plugin_dir_path( $plugin_path );							// eg. akismet/akismet.php
-			$fullpath = WP_CONTENT_DIR.'/plugins/'.$path;					// eg. www.example.com/wp-content/plugins/akismet/
-
+			// Under development plugins
 			if ( file_exists( $fullpath.'.git/' ) ) {
-				$dev_plugin = new GitPlugin( $plugin_path, $plugin_data );
+				return $git;
 			} else if ( file_exists( $fullpath.'.hg/' ) ) {
-				$dev_plugin = new MercurialPlugin( $plugin_path, $plugin_data );
+				return $mercurial;
 			} else if ( file_exists( $fullpath.'.svn/' ) ) {
-				$dev_plugin = new SubversionPlugin( $plugin_path, $plugin_data );
-			} else {
-				$dev_plugin = new WPackagistPlugin( $plugin_path, $plugin_data );
+				return $subversion;
 			}
+			//TODO: check if the package can be retrieved via wpackagist..
+			// else {
+			//	return $wpackagist;
+			//}
 
-			if( isset($dev_plugin) ) {
-				return $dev_plugin;
-			}
-
+			return "uknown";
 		}
 }

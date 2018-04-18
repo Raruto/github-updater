@@ -66,15 +66,12 @@ class ComposerModel extends JSONModel
 
 		$remote_url = $plugin->get_url();
 		$reference = $plugin->get_reference();
-		$reponame = $plugin->get_name();
+		$reponame = $plugin->get_reponame();
 		$version = $plugin->get_version();
-		$required_version = $plugin->get_required_version();
-		if ( empty( $version ) ) {
-			$required_version = 'dev-master';
-		}
+		$required_version = empty( $version ) ? 'dev-master' : $plugin->get_required_version();
 		$vcstype = $plugin->get_vcs_type();
 
-		if ( !$plugin->is_packagist() ) {
+		if ( !$plugin->is_packagist() && $remote_url !== false ) {
 			if ( $plugin->has_composer() ) {
 				$this->add_repository( $vcstype, $remote_url, $reference );
 				if ( !empty( $version ) ) {

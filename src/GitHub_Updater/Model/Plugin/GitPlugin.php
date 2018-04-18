@@ -20,14 +20,43 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 class GitPlugin extends WordpressPlugin {
-	private $repository;
+	//private $repository;
+	protected $branch;
+	protected $token;
 
 	public function __construct( $plugin_path, $plugin_data ) {
 		parent::__construct( $plugin_path, $plugin_data );
+
 		//$this->repository = new Repository( $this->path ); // REQUIRES: Gitonomy, Symfony
-		// Parse config file with sections
-		$this->config = parse_ini_file( $this->path . ".git/config", true );
+		if( $this->is_in_development() ) {
+			// Parse config file with sections
+			$this->config = parse_ini_file( $this->path . ".git/config", true );
+		}
+
+		$this->branch = "master";
+		$this->token = false;
 	}
+
+	public function get_branch() {
+		return $this->branch;
+	}
+
+	public function set_branch($branch) {
+		$this->branch = ( !empty($uri) && is_string($branch) ) ? $branch : $this->branch;
+	}
+
+	public function get_token() {
+		return $this->token;
+	}
+
+	public function set_token($token) {
+		$this->$token = ( !empty($token) && is_string($token) ) ? $token : $this->$token;
+	}
+
+	public function has_token() {
+		return false !== $this->token;
+	}
+
 
 	public function get_version() {
 		$version = $this->plugin_data['Version'];
@@ -57,6 +86,10 @@ class GitPlugin extends WordpressPlugin {
 		return false;
 	}
 
+	public function is_in_development() {
+		return file_exists( $this->path .'.git/' );
+	}
+
 	public function has_vcs() {
 		return true;
 	}
@@ -71,8 +104,14 @@ class GitPlugin extends WordpressPlugin {
 		}
 		// get the repository URL
 		// $remote_url = $this->repository->run( 'config', array( '--get' => 'remote.origin.url' ) ); // REQUIRES: Gitonomy, Symfony
-		$remote_url = ($this->config['remote origin']['url']);
-		$remote_url = trim( $remote_url );
+		if(!empty($this->config)){
+			$remote_url = $this->config['remote origin']['url'];
+			$remote_url = trim( $remote_url );
+		}
+		else {
+			$remote_url = false;
+		}
 		return $remote_url;
+
 	}
 }

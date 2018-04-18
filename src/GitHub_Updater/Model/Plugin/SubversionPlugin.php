@@ -48,6 +48,10 @@ class SubversionPlugin extends WordpressPlugin {
 		return false;
 	}
 
+	public function is_in_development() {
+		return file_exists( $this->path .'.svn/' );
+	}
+
 	public function get_vcs_type() {
 		return 'svn';
 	}

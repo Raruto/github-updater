@@ -50,6 +50,10 @@ class MercurialPlugin extends WordpressPlugin {
 		return false;
 	}
 
+	public function is_in_development() {
+		return file_exists( $this->path .'.hg/' );
+	}
+
 	public function has_vcs() {
 		return true;
 	}

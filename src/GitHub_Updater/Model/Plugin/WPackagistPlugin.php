@@ -49,6 +49,10 @@ class WPackagistPlugin extends WordpressPlugin {
 		return true;
 	}
 
+	public function is_in_development() {
+		return false;
+	}
+
 	public function get_vcs_type() {
 		return 'composer';
 	}
