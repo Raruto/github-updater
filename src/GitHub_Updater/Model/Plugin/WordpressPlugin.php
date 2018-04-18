@@ -25,7 +25,7 @@ abstract class WordpressPlugin implements PluginInterface {
 	//TODO: Not all plugins are on WPackagist,
 	// we should look at RepositoryInterface::findPackage
 	// in the Composer APIs to ascertain if a package
-	// is present or not (see also: https://github.com/Raruto/composerpress)
+	// is present or not (see also: https://github.com/tomjn/composerpress)
 	const FALLBACK_VENDOR = "wpackagist-plugin";
 
 	public function __construct( $plugin_path, $plugin_data ){
