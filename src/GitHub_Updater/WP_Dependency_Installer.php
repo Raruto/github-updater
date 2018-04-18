@@ -115,6 +115,11 @@ if ( ! defined( 'WPINC' ) ) {
 			}
 		}
 
+		/**
+		 * Upload dependencies.
+		 *
+		 * @param array $config JSON config as string.
+		 */
 		public function upload( $config ){
 			//error_log(print_r($config,true));
 			if ( empty( $config ) || !is_array($config) && null === ( $config = json_decode( $config, true ) ) ) {
@@ -124,8 +129,13 @@ if ( ! defined( 'WPINC' ) ) {
 			$this->register( $config );
 		}
 
+		/**
+		 * Delete dependencies.
+		 * TODO: allow deleting specifc plugins instead of whole json config file
+		 *
+		 * @param string $slug Plugin slug.
+		 */
 		public function delete( $slug ){
-			//TODO: allow deleting specifc plugins instead of whole json config file
 			delete_site_option('ghu_wp-dependencies');
 		}
 
