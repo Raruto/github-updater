@@ -10,6 +10,9 @@
 
  $action = add_query_arg( 'tab', $tab, $action );
 
+ $plugin_data = get_file_data(GHU_PLUGIN_FILE, array('Version' => 'Version'), false);
+ $plugin_version = $plugin_data['Version'];
+
 ?>
 
  <p>
@@ -44,13 +47,7 @@
  </ol>
  <hr>
  <h3><?php print(esc_html__('Known issues', 'github-updater')); ?></h3>
- <ul style="list-style:initial; margin-left:2%;">
-	 <li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/663">GitLab Webhook Timeout Issues</a></li>
-	 <li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/662">Bitbucket credentials not persisting</a></li>
-	 <li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/637">GitHubupdater keeps overwriting his own settings</a></li>
-	 <li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/540">Beanstalk?</a></li>
-	 <li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/540">Feature: Build installable zip on release</a></li>
-	 <li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/292">Does github-updater work with Gogs?</a></li>
+ <ul id="github-issues" style="list-style:initial; margin-left:2%;">
  </ul>
  <hr>
  <h3><?php print(esc_html__('Calls to action', 'github-updater')); ?></h3>
@@ -59,6 +56,14 @@
 	 <li><a target="_blank"  href="https://github.com/afragen/github-updater/issues/339">Travis-CI and Unit Tests</a></li>
  </ul>
  <hr>
+ <h3>
+	 <?php print(esc_html__('Relase notes', 'github-updater')); ?>
+	 -
+	 <?php printf(esc_html__('see v. %s', 'github-updater'), $plugin_version); ?>
+ </h3>
+<pre id ="github-changes" style="white-space: pre-wrap; height:50ch; overflow-y:scroll;">
+</pre>
+<hr>
  <sub style="float:right; text-align:center;">
  <?php
 	 printf(
@@ -75,3 +80,49 @@
 	 );
  ?>
 </sub>
+
+<script>
+	/**
+	 * Dynamically retrieve GitHub opened issues,
+	 * see: https://developer.github.com/v3/issues/
+	 */
+	$.ajax({
+		url: 'https://api.github.com/repos/afragen/github-updater/issues?state=open',
+	})
+	.done(function(data) {
+		// Blaclisted:
+		// 339 = Travis-CI and Unit Tests;
+		// 470 = Translations now using Language Pack updates;
+		var blacklisted = [339, 470]; //TODO: use github labels instead..
+		var ul = document.getElementById("github-issues");
+		for (var i = 0; i < data.length; i++) {
+			var issue = data[i];
+			if( $.inArray( issue.number, blacklisted ) >= 0 ) {
+				continue;
+			}
+			var li = document.createElement('li'),
+					 a = document.createElement('a');
+			a.href = issue.html_url;
+			a.innerHTML = issue.title;
+			li.appendChild(a);
+			ul.appendChild(li);
+		}
+	})
+	.fail(function() {
+	 console.log("Failed to fetch data from GitHub API")
+	})
+	/**
+	 * Dynamically retrieve GitHub release notes,
+	 * see: https://developer.github.com/v3/contents/
+	 */
+	$.ajax({
+		url: 'https://api.github.com/repos/afragen/github-updater/contents/CHANGES.md',
+	})
+	.done(function(data) {
+		var pre = document.getElementById("github-changes");
+		pre.innerHTML = atob(data.content);
+	})
+	.fail(function() {
+	 console.log("Failed to fetch data from GitHub API")
+	})
+</script>
