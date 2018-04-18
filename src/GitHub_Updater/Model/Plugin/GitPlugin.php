@@ -10,7 +10,7 @@
 
 namespace Fragen\GitHub_Updater\Model\Plugin;
 
-use Gitonomy\Git\Repository;
+//use Gitonomy\Git\Repository;
 
 /*
  * Exit if called directly.
@@ -24,7 +24,9 @@ class GitPlugin extends WordpressPlugin {
 
 	public function __construct( $plugin_path, $plugin_data ) {
 		parent::__construct( $plugin_path, $plugin_data );
-		$this->repository = new Repository( $this->path );
+		//$this->repository = new Repository( $this->path ); // REQUIRES: Gitonomy, Symfony
+		// Parse config file with sections
+		$this->config = parse_ini_file( $this->path . ".git/config", true );
 	}
 
 	public function get_version() {
@@ -68,9 +70,8 @@ class GitPlugin extends WordpressPlugin {
 			//wp_die( 'omg composer'.$this->get_name() );
 		}
 		// get the repository URL
-		$remote_url = $this->repository->run( 'config', array(
-			'--get' => 'remote.origin.url'
-		) );
+		// $remote_url = $this->repository->run( 'config', array( '--get' => 'remote.origin.url' ) ); // REQUIRES: Gitonomy, Symfony
+		$remote_url = ($this->config['remote origin']['url']);
 		$remote_url = trim( $remote_url );
 		return $remote_url;
 	}

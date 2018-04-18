@@ -90,16 +90,9 @@ $ghu['init']        = new $ghu['instantiate'];
 $ghu['init']->run();
 
 
-ghu_loadPackage(__DIR__."/vendor/gitonomy/gitlib");
-// new $ghu['loader'](
-// 	array( 'Gitonomy\\Git\\' => __DIR__ . '/vendor/gitonomy/gitlib/src/Gitonomy/Git' ),
-// 	array( 'Gitonomy\Git\Repository' => __DIR__ . '/vendor/gitonomy/gitlib/src/Gitonomy/Git/Repository.php' )
-// );
-ghu_loadPackage(__DIR__."/vendor/symfony/process");
-// new $ghu['loader'](
-// 	array( 'Symfony\\Component\\Process\\' => __DIR__ . '/vendor/symfony/process' ),
-// 	array( 'Symfony\Component\Process\Process' => __DIR__ . '/vendor/symfony/process/Process.php' )
-// );
+// Deprecated?
+// ghu_loadPackage(__DIR__."/vendor/gitonomy/gitlib");
+// ghu_loadPackage(__DIR__."/vendor/symfony/process");
 
 /**
  * Initialize Persist Admin notices Dismissal.

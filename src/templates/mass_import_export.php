@@ -37,13 +37,9 @@ $model = new GHUModel();
 $model->fill();
 $github_updater_json = $model->to_json();
 
-if(class_exists("Gitonomy\\Git\\Repository")) {
-	$model = new ComposerModel();
-	$model->fill();
-	$composer_json = $model->to_json();
-} else {
-	$composer_json = "\"Gitonomy\" is required for working properly";
-}
+$model = new ComposerModel();
+$model->fill();
+$composer_json = $model->to_json();
 
 if(WP_Dependency_Installer::instance()->is_running_config()){
 	echo '<button type="button" value="delete" id="delete-json_file" class="delete-json button button-secondary">Delete currently uploaded github-updater.json configuration file</button>';
