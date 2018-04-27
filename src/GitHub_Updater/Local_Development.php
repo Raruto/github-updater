@@ -11,6 +11,9 @@
 
 namespace Fragen\GitHub_Updater;
 
+use Fragen\GitHub_Updater\Model\Plugin\PluginInterface;
+use Fragen\GitHub_Updater\Model\Plugin\PluginFactory;
+
 /**
  * Exit if called directly.
  */
@@ -132,9 +135,6 @@ if ( ! defined( 'WPINC' ) ) {
 		 */
 		public function run( ) {
 			add_action( 'init', array( &$this, 'init' ) );
-
-			self::$config = get_site_option( 'local_development' );
-
 			add_action( 'admin_init', array( &$this, 'page_init' ) );
 			add_action( 'admin_head-themes.php', array( &$this, 'hide_update_message' ) );
 			add_action( 'admin_head-plugins.php', array( &$this, 'hide_update_message' ) );
@@ -242,6 +242,9 @@ if ( ! defined( 'WPINC' ) ) {
 		 * Initialize plugin/theme data. Needs to be called in the 'init' hook.
 		 */
 		public function init() {
+
+			self::$config = get_site_option( 'local_development' );
+
 			$plugins = array();
 			$themes  = array();
 
@@ -262,6 +265,17 @@ if ( ! defined( 'WPINC' ) ) {
 				$themes[ $slug ] = $this->themes[ $slug ]->get( 'Name' );
 			}
 			$this->themes = $themes;
+
+			// Automatically detect local developed plugins
+			$installed_plugins = get_plugins();
+			foreach ( $installed_plugins as $plugin_path => $plugin_data ) {
+				$factory = new PluginFactory( $plugin_path, $plugin_data );
+				$plugin = $factory->create();
+				if( isset($plugin) && $plugin instanceof PluginInterface && $plugin->is_in_development() ) {
+					self::$config['plugins'][$plugin_path] = '1';
+				}
+			}
+			update_site_option( 'local_development', self::$config );
 		}
 
 		/**
