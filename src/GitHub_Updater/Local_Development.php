@@ -374,6 +374,7 @@ if ( ! defined( 'WPINC' ) ) {
 						?>
 					</form>
 				<?php endif; ?>
+				<p><strong>NB.</strong> plugins that contain a dev-folder (eg <strong>.git/</strong>,<strong>.svn/</strong>, <strong>.hg/</strong>) are automatically included in this list.</p>
 			</div>
 			<?php
 		}
