@@ -103,6 +103,7 @@ class Settings extends Base {
 			'github_updater_install_theme'     => esc_html__( 'Install Theme', 'github-updater' ),
 			'github_updater_remote_management' => esc_html__( 'Remote Management', 'github-updater' ),
 			'github_updater_mass_import_export' => esc_html__( 'Mass Import/Export', 'github-updater' ),
+			'github_updater_local_development' => esc_html__( 'Local Development', 'github-updater' ),
 			'github_updater_faq' => esc_html__( 'FAQ', 'github-updater' ),
 		);
 	}
@@ -266,6 +267,9 @@ class Settings extends Base {
 				break;
 			case 'github_updater_mass_import_export':
 				include ghu_locate_template( "mass_import_export.php" );
+				break;
+			case 'github_updater_local_development':
+				include ghu_locate_template( "local_development.php" );
 				break;
 			case 'github_updater_faq':
 				include ghu_locate_template( "faq.php" );

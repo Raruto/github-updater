@@ -30,6 +30,7 @@ class Init extends Base {
 		$this->load_hooks();
 
 		WP_Dependency_Installer::instance()->run();
+		Local_Development::instance()->run();
 
 		if ( static::is_wp_cli() ) {
 			include_once __DIR__ . '/WP-CLI/CLI.php';
