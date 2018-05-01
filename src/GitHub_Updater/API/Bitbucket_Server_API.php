@@ -48,6 +48,7 @@ class Bitbucket_Server_API extends Bitbucket_API {
 	 */
 	public function __construct( $type ) {
 		parent::__construct( $type );
+		$this->add_settings_subtab();
 	}
 
 	/**
@@ -68,7 +69,7 @@ class Bitbucket_Server_API extends Bitbucket_API {
 
 			if ( $response ) {
 				$contents = $this->bbserver_recombine_response( $response );
-				$response = $this->base->get_file_headers( $contents, $this->type->type );
+				$response = $this->get_file_headers( $contents, $this->type->type );
 				$this->set_repo_cache( $file, $response );
 				$this->set_repo_cache( 'repo', $this->type->repo );
 			}
@@ -133,7 +134,7 @@ class Bitbucket_Server_API extends Bitbucket_API {
 		/*
 		 * Set $response from local file if no update available.
 		 */
-		if ( ! $response && ! $this->base->can_update_repo( $this->type ) ) {
+		if ( ! $response && ! $this->can_update_repo( $this->type ) ) {
 			$response = array();
 			$content  = $this->get_local_info( $this->type, $changes );
 			if ( $content ) {
@@ -187,7 +188,7 @@ class Bitbucket_Server_API extends Bitbucket_API {
 		/*
 		 * Set $response from local file if no update available.
 		 */
-		if ( ! $response && ! $this->base->can_update_repo( $this->type ) ) {
+		if ( ! $response && ! $this->can_update_repo( $this->type ) ) {
 			$response = new \stdClass();
 			$content  = $this->get_local_info( $this->type, 'readme.txt' );
 			if ( $content ) {
@@ -535,6 +536,15 @@ class Bitbucket_Server_API extends Bitbucket_API {
 		);
 
 		return $setting_field;
+	}
+
+	/**
+	 * Add subtab to Settings page.
+	 */
+	private function add_settings_subtab() {
+		add_filter( 'github_updater_add_settings_subtabs', function( $subtabs ) {
+			return array_merge( $subtabs, [ 'bbserver' => esc_html__( 'Bitbucket Server', 'github-updater' ) ] );
+		} );
 	}
 
 	/**

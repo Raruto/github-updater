@@ -10,7 +10,7 @@
 
 namespace Fragen\GitHub_Updater;
 
-use Fragen\Singleton;
+use Fragen\GitHub_Updater\Traits\API_Trait;
 
 
 /*
@@ -26,6 +26,7 @@ if ( ! defined( 'WPINC' ) ) {
  * @package Fragen\GitHub_Updater
  */
 class Messages extends Base {
+	use API_Trait;
 
 	/**
 	 * Holds WP_Error message.
@@ -63,6 +64,9 @@ class Messages extends Base {
 					add_action( 'admin_notices', array( &$this, 'show_wp_error' ) );
 					add_action( 'network_admin_notices', array( &$this, 'show_wp_error' ) );
 					break;
+				case 'waiting':
+					add_action( 'admin_notices', array( &$this, 'waiting' ) );
+					add_action( 'network_admin_notices', array( &$this, 'waiting' ) );
 				case 'git':
 				default:
 					add_action( 'admin_notices', array( &$this, 'show_403_error_message' ) );
@@ -81,15 +85,16 @@ class Messages extends Base {
 	 */
 	public function show_403_error_message() {
 		$_403       = false;
-		$error_code = Singleton::get_instance( 'API_PseudoTrait', $this )->get_error_codes();
+		$error_code = $this->get_error_codes();
 		foreach ( (array) $error_code as $repo ) {
-			if ( ! $_403 && 403 === $repo['code'] && 'github' === $repo['git'] ) {
+			if ( ( ! $_403 && isset( $repo['code'], $repo['git'] ) )
+			     && 403 === $repo['code'] && 'github' === $repo['git'] ) {
 				$_403 = true;
 				if ( ! \PAnD::is_admin_notice_active( '403-error-1' ) ) {
 					return;
 				}
 				?>
-				<div data-dismissible="403-error-1" class="error notice is-dismissible">
+				<div data-dismissible="403-error-1" class="notice-error notice is-dismissible">
 					<p>
 						<?php
 						esc_html_e( 'GitHub Updater Error Code:', 'github-updater' );
@@ -120,15 +125,15 @@ class Messages extends Base {
 	 */
 	public function show_401_error_message() {
 		$_401       = false;
-		$error_code = Singleton::get_instance( 'API_PseudoTrait', $this )->get_error_codes();
+		$error_code = $this->get_error_codes();
 		foreach ( (array) $error_code as $repo ) {
-			if ( ! $_401 && 401 === $repo['code'] ) {
+			if ( ( ! $_401 && isset( $repo['code'] ) ) && 401 === $repo['code'] ) {
 				$_401 = true;
 				if ( ! \PAnD::is_admin_notice_active( '401-error-1' ) ) {
 					return;
 				}
 				?>
-				<div data-dismissible="401-error-1" class="error notice is-dismissible">
+				<div data-dismissible="401-error-1" class="notice-error notice is-dismissible">
 					<p>
 						<?php
 						esc_html_e( 'GitHub Updater Error Code:', 'github-updater' );
@@ -151,12 +156,27 @@ class Messages extends Base {
 			return;
 		}
 		?>
-		<div data-dismissible="wp-error-1" class="error notice is-dismissible">
+		<div data-dismissible="wp-error-1" class="notice-error notice is-dismissible">
 			<p>
 				<?php
 				esc_html_e( 'GitHub Updater Error Code:', 'github-updater' );
 				echo ' ' . self::$error_message;
 				?>
+			</p>
+		</div>
+		<?php
+	}
+
+	/**
+	 * Generate information message when waiting for WP-Cron to finish.
+	 */
+	public function waiting() {
+		?>
+		<div class="notice-info notice is-dismissible">
+			<p>
+				<?php esc_html_e( 'GitHub Updater Information', 'github-updater' ); ?>
+				<br>
+				<?php esc_html_e( 'Please be patient while WP-Cron finishes.', 'github-updater' ); ?>
 			</p>
 		</div>
 		<?php

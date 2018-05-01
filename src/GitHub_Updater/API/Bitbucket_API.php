@@ -12,8 +12,10 @@ namespace Fragen\GitHub_Updater\API;
 
 use Fragen\Singleton,
 	Fragen\GitHub_Updater\API,
+	Fragen\GitHub_Updater\Traits\API_Trait,
 	Fragen\GitHub_Updater\Branch,
 	Fragen\GitHub_Updater\Readme_Parser;
+
 
 /*
  * Exit if called directly.
@@ -31,6 +33,7 @@ if ( ! defined( 'WPINC' ) ) {
  * @author  Andy Fragen
  */
 class Bitbucket_API extends API implements API_Interface {
+	use API_Trait;
 
 	/**
 	 * Constructor.
@@ -50,6 +53,9 @@ class Bitbucket_API extends API implements API_Interface {
 				: $type->branch;
 		}
 		$this->set_default_credentials();
+		$this->settings_hook( $this );
+		$this->add_settings_subtab();
+		$this->add_install_fields( $this );
 	}
 
 	/**
@@ -105,7 +111,7 @@ class Bitbucket_API extends API implements API_Interface {
 
 			if ( $response && isset( $response->data ) ) {
 				$contents = $response->data;
-				$response = $this->base->get_file_headers( $contents, $this->type->type );
+				$response = $this->get_file_headers( $contents, $this->type->type );
 				$this->set_repo_cache( $file, $response );
 				$this->set_repo_cache( 'repo', $this->type->repo );
 			}
@@ -172,7 +178,7 @@ class Bitbucket_API extends API implements API_Interface {
 		/*
 		 * Set $response from local file if no update available.
 		 */
-		if ( ! $response && ! $this->base->can_update_repo( $this->type ) ) {
+		if ( ! $response && ! $this->can_update_repo( $this->type ) ) {
 			$response = array();
 			$content  = $this->get_local_info( $this->type, $changes );
 			if ( $content ) {
@@ -224,7 +230,7 @@ class Bitbucket_API extends API implements API_Interface {
 		/*
 		 * Set $response from local file if no update available.
 		 */
-		if ( ! $response && ! $this->base->can_update_repo( $this->type ) ) {
+		if ( ! $response && ! $this->can_update_repo( $this->type ) ) {
 			$response = new \stdClass();
 			$content  = $this->get_local_info( $this->type, 'readme.txt' );
 			if ( $content ) {
@@ -554,6 +560,15 @@ class Bitbucket_API extends API implements API_Interface {
 		);
 
 		return $setting_field;
+	}
+
+	/**
+	 * Add subtab to Settings page.
+	 */
+	private function add_settings_subtab() {
+		add_filter( 'github_updater_add_settings_subtabs', function( $subtabs ) {
+			return array_merge( $subtabs, [ 'bitbucket' => esc_html__( 'Bitbucket', 'github-updater' ) ] );
+		} );
 	}
 
 	/**

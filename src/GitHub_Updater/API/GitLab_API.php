@@ -12,6 +12,7 @@ namespace Fragen\GitHub_Updater\API;
 
 use Fragen\Singleton,
 	Fragen\GitHub_Updater\API,
+	Fragen\GitHub_Updater\Traits\API_Trait,
 	Fragen\GitHub_Updater\Branch,
 	Fragen\GitHub_Updater\Readme_Parser;
 
@@ -32,6 +33,7 @@ if ( ! defined( 'WPINC' ) ) {
  * @author  Andy Fragen
  */
 class GitLab_API extends API implements API_Interface {
+	use API_Trait;
 
 	/**
 	 * Holds loose class method name.
@@ -56,6 +58,9 @@ class GitLab_API extends API implements API_Interface {
 				: $type->branch;
 		}
 		$this->set_default_credentials();
+		$this->settings_hook( $this );
+		$this->add_settings_subtab();
+		$this->add_install_fields( $this );
 	}
 
 	/**
@@ -73,7 +78,7 @@ class GitLab_API extends API implements API_Interface {
 			$set_credentials                            = true;
 		}
 		if ( ( empty( static::$options['gitlab_enterprise_token'] ) &&
-		       ! empty( $this->type->enterprise ) ) ||
+		       in_array( 'gitlabce', $running_servers, true ) ) ||
 		     ( empty( static::$options['gitlab_access_token'] ) &&
 		       in_array( 'gitlab', $running_servers, true ) )
 		) {
@@ -106,7 +111,7 @@ class GitLab_API extends API implements API_Interface {
 
 			if ( $response && isset( $response->content ) ) {
 				$contents = base64_decode( $response->content );
-				$response = $this->base->get_file_headers( $contents, $this->type->type );
+				$response = $this->get_file_headers( $contents, $this->type->type );
 				$this->set_repo_cache( $file, $response );
 				$this->set_repo_cache( 'repo', $this->type->repo );
 			}
@@ -170,7 +175,7 @@ class GitLab_API extends API implements API_Interface {
 		/*
 		 * Set response from local file if no update available.
 		 */
-		if ( ! $response && ! $this->base->can_update_repo( $this->type ) ) {
+		if ( ! $response && ! $this->can_update_repo( $this->type ) ) {
 			$response = array();
 			$content  = $this->get_local_info( $this->type, $changes );
 			if ( $content ) {
@@ -219,7 +224,7 @@ class GitLab_API extends API implements API_Interface {
 		/*
 		 * Set $response from local file if no update available.
 		 */
-		if ( ! $response && ! $this->base->can_update_repo( $this->type ) ) {
+		if ( ! $response && ! $this->can_update_repo( $this->type ) ) {
 			$response = new \stdClass();
 			$content  = $this->get_local_info( $this->type, 'readme.txt' );
 			if ( $content ) {
@@ -640,6 +645,15 @@ class GitLab_API extends API implements API_Interface {
 	}
 
 	/**
+	 * Add subtab to Settings page.
+	 */
+	private function add_settings_subtab() {
+		add_filter( 'github_updater_add_settings_subtabs', function( $subtabs ) {
+			return array_merge( $subtabs, [ 'gitlab' => esc_html__( 'GitLab', 'github-updater' ) ] );
+		} );
+	}
+
+	/**
 	 * Print the GitLab Settings text.
 	 */
 	public function print_section_gitlab_info() {
@@ -695,15 +709,14 @@ class GitLab_API extends API implements API_Interface {
 	 * Generate error message for missing GitLab Private Token.
 	 */
 	public function gitlab_error() {
-		$base       = Singleton::get_instance( 'Base', $this );
-		$error_code = Singleton::get_instance( 'API_PseudoTrait', $this )->get_error_codes();
+		$settings   = Singleton::get_instance( 'Settings', $this );
+		$error_code = $this->get_error_codes();
 
 		if ( ! isset( $error_code['gitlab'] ) &&
 		     ( ( empty( static::$options['gitlab_enterprise_token'] ) &&
-		         $base::$auth_required['gitlab_enterprise'] ) ||
+		         $settings::$auth_required['gitlab_enterprise'] ) ||
 		       ( empty( static::$options['gitlab_access_token'] ) &&
-		         $base::$auth_required['gitlab'] ) )
-
+		         $settings::$auth_required['gitlab'] ) )
 		) {
 			self::$error_code['gitlab'] = array( 'error' => true );
 			if ( ! \PAnD::is_admin_notice_active( 'gitlab-error-1' ) ) {

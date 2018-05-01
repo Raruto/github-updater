@@ -1,4 +1,19 @@
 #### [unreleased]
+**This update requires PHP 5.6 or greater**
+* refactor `Settings` to add git API data via hooks
+* refactor some of `class API` to `trait API_Trait`
+* refactor `class Basic_Auth_Loader` to `trait Basic_Auth_Loader`
+* added `trait GHU_Trait` wih common code
+* moved traits to own sub-directory
+* removed old extended naming code
+
+#### 7.6.2 / 2018-04-27
+* move `auth_required` stuff from `Base` to `Settings`
+* prevent admin notice from showing when no GitLab.com repo exists
+* remove caching of `get_plugins()` and `wp_get_themes()` as it seems to result in issues for some users
+
+#### 7.6.1 / 2018-04-11
+* check `file_exists()` in `Base::set_installed_apis()` to avoid issue if class not yet loaded prior to checking Settings, fixes [#662](https://github.com/afragen/github-updater/issues/662) and [#667](https://github.com/afragen/github-updater/issues/667)
 
 #### 7.6.0 / 2018-04-08
 * added "safety orange" warning dashicon when waiting for WP-Cron to finish

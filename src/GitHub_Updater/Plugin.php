@@ -10,7 +10,8 @@
 
 namespace Fragen\GitHub_Updater;
 
-use Fragen\Singleton;
+use Fragen\Singleton,
+	Fragen\GitHub_Updater\Traits\API_Trait;
 
 
 /*
@@ -31,6 +32,7 @@ if ( ! defined( 'WPINC' ) ) {
  * @link    https://github.com/codepress/github-plugin-updater
  */
 class Plugin extends Base {
+	use API_Trait;
 
 	/**
 	 * Rollback variable
@@ -72,18 +74,7 @@ class Plugin extends Base {
 		// Ensure get_plugins() function is available.
 		include_once ABSPATH . '/wp-admin/includes/plugin.php';
 
-		$repo_cache            = Singleton::get_instance( 'API_PseudoTrait', $this )->get_repo_cache( 'repos' );
-		static::$extra_headers = ! empty( $repo_cache['extra_headers'] )
-			? $repo_cache['extra_headers']
-			: static::$extra_headers;
-
-		$plugins = ! empty( $repo_cache['plugins'] ) ? $repo_cache['plugins'] : false;
-		if ( ! $plugins ) {
-			$plugins = get_plugins();
-			Singleton::get_instance( 'API_PseudoTrait', $this )->set_repo_cache( 'plugins', $plugins, 'repos', '+30 minutes' );
-			Singleton::get_instance( 'API_PseudoTrait', $this )->set_repo_cache( 'extra_headers', static::$extra_headers, 'repos', '+30 minutes' );
-		}
-
+		$plugins     = get_plugins();
 		$git_plugins = array();
 
 		/**
@@ -140,13 +131,6 @@ class Plugin extends Base {
 				$git_plugin['slug']           = $plugin;
 				$git_plugin['local_path']     = WP_PLUGIN_DIR . '/' . $header['repo'] . '/';
 
-				// @TODO remove extended naming stuff
-				$git_plugin['extended_repo'] = implode( '-', array(
-					$repo_parts['git_server'],
-					str_replace( '/', '-', $header['owner'] ),
-					$header['repo'],
-				) );
-
 				$plugin_data                           = get_plugin_data( WP_PLUGIN_DIR . '/' . $git_plugin['slug'] );
 				$git_plugin['author']                  = $plugin_data['AuthorName'];
 				$git_plugin['name']                    = $plugin_data['Name'];
@@ -188,11 +172,6 @@ class Plugin extends Base {
 				continue;
 			}
 
-			if ( ! is_dir( $git_plugin['local_path'] ) ) {
-				// Delete get_plugins() and wp_get_themes() cache.
-				delete_site_option( 'ghu-' . md5( 'repos' ) );
-			}
-
 			$git_plugins[ $git_plugin['repo'] ] = (object) $git_plugin;
 		}
 
@@ -206,7 +185,6 @@ class Plugin extends Base {
 	public function get_remote_plugin_meta() {
 		$plugins = array();
 		foreach ( (array) $this->config as $plugin ) {
-
 			/**
 			 * Filter to set if WP-Cron is disabled or if user wants to return to old way.
 			 *

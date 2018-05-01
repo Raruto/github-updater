@@ -11,7 +11,8 @@
 
 namespace Fragen\GitHub_Updater;
 
-use Fragen\Singleton;
+use Fragen\Singleton,
+	Fragen\GitHub_Updater\Traits\Basic_Auth_Loader;
 
 
 /*
@@ -22,6 +23,12 @@ if ( ! defined( 'WPINC' ) ) {
 }
 
 class Init extends Base {
+	use Basic_Auth_Loader;
+
+	public function __construct() {
+		parent::__construct();
+		$this->load_options();
+	}
 
 	/**
 	 * Let's get going.
@@ -49,19 +56,9 @@ class Init extends Base {
 		add_action( 'wp_ajax_github-updater-update', array( &$this, 'ajax_update' ) );
 		add_action( 'wp_ajax_nopriv_github-updater-update', array( &$this, 'ajax_update' ) );
 
-		add_action( 'upgrader_process_complete', function() {
-			delete_site_option( 'ghu-' . md5( 'repos' ) );
-		} );
-
-		// Delete get_plugins() and wp_get_themes() cache.
-		add_action( 'deleted_plugin', function() {
-			wp_cache_delete( 'plugins', 'plugins' );
-			delete_site_option( 'ghu-' . md5( 'repos' ) );
-		} );
-
 		// Load hook for shiny updates Basic Authentication headers.
 		if ( self::is_doing_ajax() ) {
-			Singleton::get_instance( 'Basic_Auth_Loader', $this, self::$options )->load_authentication_hooks();
+			$this->load_authentication_hooks();
 		}
 
 		add_filter( 'extra_theme_headers', array( &$this, 'add_headers' ) );
@@ -70,11 +67,7 @@ class Init extends Base {
 
 		// Needed for updating from update-core.php.
 		if ( ! self::is_doing_ajax() ) {
-			add_filter( 'upgrader_pre_download',
-				array(
-					Singleton::get_instance( 'Basic_Auth_Loader', $this, self::$options ),
-					'upgrader_pre_download',
-				), 10, 3 );
+			add_filter( 'upgrader_pre_download', array( $this, 'upgrader_pre_download', ), 10, 3 );
 		}
 
 		// The following hook needed to ensure transient is reset correctly after shiny updates.
