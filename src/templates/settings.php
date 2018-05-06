@@ -8,6 +8,10 @@
  * @link	 https://github.com/afragen/github-updater
  */
 
+if ( isset( $_GET['settings-updated'] ) ) {
+	return;
+}
+
  $action = $this->get_action_tab();
 
  $this->options_sub_tabs();

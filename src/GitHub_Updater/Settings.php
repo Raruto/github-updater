@@ -274,31 +274,13 @@ class Settings extends Base {
 			include ghu_locate_template( "settings-messages.php" );
 		}
 
-		switch ($tab) {
-			case 'github_updater_settings':
-				if ( ! isset( $_GET['settings-updated'] ) ) {
-					include ghu_locate_template( "settings.php" );
-				}
-				break;
-			case 'github_updater_install_plugin':
-				include ghu_locate_template( "install_plugin.php" );
-				break;
-			case 'github_updater_install_theme':
-				include ghu_locate_template( "install_theme.php" );
-				break;
-			case 'github_updater_remote_management':
-				include ghu_locate_template( "remote_management.php" );
-				break;
-			case 'github_updater_mass_import_export':
-				include ghu_locate_template( "mass_import_export.php" );
-				break;
-			case 'github_updater_local_development':
-				include ghu_locate_template( "local_development.php" );
-				break;
-			case 'github_updater_faq':
-				include ghu_locate_template( "faq.php" );
-				break;
-		}
+		/**
+		 * Remove "github_updater_" prefix leaving the template name.
+		 * eg. "github_updater_install_plugin" becomes "install_plugin"
+		 */
+		$template_name = preg_replace( '/^github_updater_/', '', $tab );
+		$template_file = $template_name . ".php";
+		include ghu_locate_template( $template_file );
 
 		include ghu_locate_template( "settings-page-after.php" );
 	}
