@@ -119,8 +119,15 @@ if ( ! defined( 'WPINC' ) ) {
 
 			// GitHub Link Stuff
 			add_filter( "extra_plugin_headers", array( &$this, "GHL_extra_headers" ) );
-			add_filter( "plugin_action_links", array( &$this, "GHL_plugin_link" ), 100, 4 );
-			add_filter( "network_admin_plugin_action_links", array( &$this, "GHL_plugin_link" ), 100, 4 );
+			/*
+			 * Ensure get_plugins() function is available.
+			 */
+			include_once ABSPATH . '/wp-admin/includes/plugin.php';
+			$plugins = get_plugins ();
+					foreach (array_keys ($plugins) as $plugin_basename) {
+						add_filter ("plugin_action_links_{$plugin_basename}", array( &$this, "GHL_plugin_link" ), 1000, 4);
+						add_filter( "network_admin_plugin_action_links_{$plugin_basename}", array( &$this, "GHL_plugin_link" ), 1000, 4 );
+					}
 
 		}
 
