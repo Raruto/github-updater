@@ -121,19 +121,27 @@ add_action( 'plugins_loaded', array( 'Fragen\\GitHub_Updater\\Init', 'on_plugins
  */
 function ghu_locate_template( $template_name, $template_path = '', $default_path = '' ) {
 	// Set variable to search in templates folder of theme.
-	if ( ! $template_path ) :
+	if ( ! $template_path ) {
 		$template_path = 'plugins/github-updater/templates/';
-	endif;
+	}
 	// Set default plugin templates path.
-	if ( ! $default_path ) :
+	if ( ! $default_path ) {
 		$default_path = plugin_dir_path( __FILE__ ) . 'src/templates/'; // Path to the template folder.
-	endif;
+	}
 	// Search template file in theme folder.
 	$template = locate_template( array( $template_path . $template_name ) );
 	// Get plugins template file.
-	if ( ! $template ) :
+	if ( ! $template ) {
 		$template = $default_path . $template_name;
-	endif;
+	}
+	/**
+	 * Filter template loader.
+	 *
+	 * @param string $template_name  Template to load.
+	 * @param string $template_path  Path to templates.
+	 * @param string $default_path   Default path to template files.
+	 * @return string                Path to the template file.
+	 */
 	return apply_filters( 'ghu_locate_template', $template, $template_name, $template_path, $default_path );
 }
 
@@ -143,29 +151,28 @@ function ghu_locate_template( $template_name, $template_path = '', $default_path
  * @link https://stackoverflow.com/questions/39571391/psr4-auto-load-without-composer/39774973#39774973
  * @param  String $dir
  */
-function ghu_loadPackage($dir)
-{
-    $composer = json_decode(file_get_contents("$dir/composer.json"), 1);
-    $namespaces = $composer['autoload']['psr-4'];
+function ghu_loadPackage( $dir ) {
+	$composer = json_decode( file_get_contents( "$dir/composer.json" ), 1 );
+	$namespaces = $composer['autoload']['psr-4'];
 
-    // Foreach namespace specified in the composer, load the given classes
-    foreach ($namespaces as $namespace => $classpaths) {
-        if (!is_array($classpaths)) {
-            $classpaths = array($classpaths);
-        }
-        spl_autoload_register(function ($classname) use ($namespace, $classpaths, $dir) {
-            // Check if the namespace matches the class we are looking for
-            if (preg_match("#^".preg_quote($namespace)."#", $classname)) {
-                // Remove the namespace from the file path since it's psr4
-                $classname = str_replace($namespace, "", $classname);
-                $filename = preg_replace("#\\\\#", "/", $classname).".php";
-                foreach ($classpaths as $classpath) {
-                    $fullpath = $dir."/".$classpath."/$filename";
-                    if (file_exists($fullpath)) {
-                        include_once $fullpath;
-                    }
-                }
-            }
-        });
-    }
+	// Foreach namespace specified in the composer, load the given classes.
+	foreach ( $namespaces as $namespace => $classpaths ) {
+		if ( !is_array($classpaths) ) {
+			$classpaths = array( $classpaths );
+		}
+		spl_autoload_register( function ( $classname ) use ( $namespace, $classpaths, $dir ) {
+			// Check if the namespace matches the class we are looking for
+			if ( preg_match( "#^".preg_quote( $namespace )."#", $classname ) ) {
+				// Remove the namespace from the file path since it's psr4
+				$classname = str_replace( $namespace, "", $classname );
+				$filename = preg_replace( "#\\\\#", "/", $classname ).".php";
+				foreach ( $classpaths as $classpath ) {
+					$fullpath = $dir."/".$classpath."/$filename";
+					if ( file_exists( $fullpath ) ) {
+						include_once $fullpath;
+					}
+				}
+			}
+		});
+	}
 }
