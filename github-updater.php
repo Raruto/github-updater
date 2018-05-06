@@ -38,19 +38,19 @@ if ( ! defined( 'WPINC' ) ) {
  * checked on plugin update when changes are made to
  * the structure of tables
  */
-define("GHU_DB_VERSION", "0.0");
+define( 'GHU_DB_VERSION', '0.0' );
 
 /**
  * GHU_TABLE_LOGS - holds current log table name
  */
-define("GHU_TABLE_LOGS", "ghu_logs");
+define( 'GHU_TABLE_LOGS', 'ghu_logs' );
 
 /**
  * Useful path constants
  */
-define('GHU_PLUGIN_FILE', __FILE__); 																								// eg: www.example.com/wp-content/plugins/github-updater/github-updater.php
-define('GHU_PLUGIN_ROOT', dirname(__FILE__) . '/'); 																// eg: www.example.com/wp-content/plugins/github-updater/
-define('GHU_PLUGIN_NAME', basename(dirname(__FILE__)) . '/' . basename(__FILE__));	// eg: github-updater/github-updater.php
+define( 'GHU_PLUGIN_FILE', __FILE__ );                                                   // eg: www.example.com/wp-content/plugins/github-updater/github-updater.php
+define( 'GHU_PLUGIN_ROOT', dirname( __FILE__ ) . '/' );                                  // eg: www.example.com/wp-content/plugins/github-updater/
+define( 'GHU_PLUGIN_NAME', basename(dirname( __FILE__ )) . '/' . basename( __FILE__ ) ); // eg: github-updater/github-updater.php
 
 if ( version_compare( '5.6.0', PHP_VERSION, '>=' ) ) {
 	?>
@@ -90,7 +90,7 @@ $ghu['init']        = new $ghu['instantiate'];
 $ghu['init']->run();
 
 
-// Deprecated?
+// Deprecated.
 // ghu_loadPackage(__DIR__."/vendor/gitonomy/gitlib");
 // ghu_loadPackage(__DIR__."/vendor/symfony/process");
 
@@ -101,9 +101,9 @@ $ghu['init']->run();
  */
 add_action( 'admin_init', array( 'PAnD', 'init' ) );
 
-// TODO: move in a better place
-register_activation_hook( __FILE__, array( 'Fragen\\GitHub_Updater\\Init', 'on_register_activation_hook') );
-add_action('plugins_loaded', array( 'Fragen\\GitHub_Updater\\Init', 'on_plugins_loaded'));
+// TODO: move in a better place.
+register_activation_hook( __FILE__, array( 'Fragen\\GitHub_Updater\\Init', 'on_register_activation_hook' ) );
+add_action( 'plugins_loaded', array( 'Fragen\\GitHub_Updater\\Init', 'on_plugins_loaded' ) );
 /**
  * Locate Frontend Template Files
  *
@@ -114,11 +114,10 @@ add_action('plugins_loaded', array( 'Fragen\\GitHub_Updater\\Init', 'on_plugins_
  *
  * @link https://jeroensormani.com/how-to-add-template-files-in-your-plugin/
  *
- * @param 	string 	$template_name			Template to load.
- * @param 	string 	$string $template_path	Path to templates.
- * @param 	string	$default_path			Default path to template files.
- * @return 	string 							Path to the template file.
- *
+ * @param string $template_name  Template to load.
+ * @param string $template_path  Path to templates.
+ * @param string $default_path   Default path to template files.
+ * @return string                Path to the template file.
  */
 function ghu_locate_template( $template_name, $template_path = '', $default_path = '' ) {
 	// Set variable to search in templates folder of theme.
@@ -127,7 +126,7 @@ function ghu_locate_template( $template_name, $template_path = '', $default_path
 	endif;
 	// Set default plugin templates path.
 	if ( ! $default_path ) :
-		$default_path = plugin_dir_path( __FILE__ ) . 'src/templates/'; // Path to the template folder
+		$default_path = plugin_dir_path( __FILE__ ) . 'src/templates/'; // Path to the template folder.
 	endif;
 	// Search template file in theme folder.
 	$template = locate_template( array( $template_path . $template_name ) );
@@ -137,7 +136,6 @@ function ghu_locate_template( $template_name, $template_path = '', $default_path
 	endif;
 	return apply_filters( 'ghu_locate_template', $template, $template_name, $template_path, $default_path );
 }
-//
 
 /**
  * Composer File Loader - allow you to load composer.json file just as composer would do it.
