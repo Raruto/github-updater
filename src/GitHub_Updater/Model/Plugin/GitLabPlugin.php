@@ -2,10 +2,10 @@
 /**
  * GitHub Updater
  *
- * @package	GitHub_Updater
- * @author	Andy Fragen
- * @license	GPL-2.0+
- * @link	 https://github.com/afragen/github-updater
+ * @package GitHub_Updater
+ * @author  Andy Fragen
+ * @license GPL-2.0+
+ * @link     https://github.com/afragen/github-updater
  */
 
 namespace Fragen\GitHub_Updater\Model\Plugin;
@@ -22,16 +22,18 @@ class GitLabPlugin extends GitPlugin {
 	public function __construct( $plugin_path, $plugin_data ) {
 		parent::__construct( $plugin_path, $plugin_data );
 
-		if(!empty($plugin_data['GitLab Plugin URI'])) {
-			$this->set_plugin_uri($plugin_data['GitLab Plugin URI']);
+		if ( ! empty( $plugin_data['GitLab Plugin URI'] ) ) {
+			$this->set_plugin_uri( $plugin_data['GitLab Plugin URI'] );
 		}
-		if(!empty($plugin_data['GitLab Branch'])) {
-			$this->set_branch($plugin_data['GitLab Branch']);
+		// if ( ! empty( $plugin_data['GitLab Branch'] ) ) {
+		// 	$this->set_branch( $plugin_data['GitLab Branch'] );
+		// }
+		if ( ! empty( $plugin_data['GitLab Access Token'] ) ) {
+			$this->set_token( $plugin_data['GitLab Access Token'] );
 		}
-		if(!empty($plugin_data['GitLab Access Token'])) {
-			$this->set_token($plugin_data['GitLab Access Token']);
-		}
-		$this->set_hostname("gitlab");
+		$this->set_hostname( 'gitlab' );
+
+		$this->icon = 'icon/GitLab-Mark-32px.png';
 
 	}
 

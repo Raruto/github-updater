@@ -643,13 +643,7 @@ class Local_Development {
 		// Keys will get lost.
 		return array_merge(
 			$extra_headers, array(
-				//'GitHubURI'       => 'GitHub Plugin URI',
-				'GitHubBranch'    => 'GitHub Branch',
-				'GitHubToken'     => 'GitHub Access Token',
-				//'GitLabURI'       => 'GitLab Plugin URI',
-				'GitLabBranch'    => 'GitLab Branch',
-				//'BitbucketURI'    => 'Bitbucket Plugin URI',
-				'BitbucketBranch' => 'Bitbucket Branch',
+				'GitHubToken' => 'GitHub Access Token',
 			)
 		);
 	}
@@ -661,9 +655,26 @@ class Local_Development {
 			return $actions;
 		}
 
-			var_dump( $plugin_data );
-
 		$link_template = '<a href="%s" title="%s" target="_blank"><img src="%s" style="width: 16px; height: 16px; margin-top: 4px; padding-right: 4px; float: none;" height="16" width="16" alt="%s" />%s</a>';
+
+		$branch = ! empty( $plugin_data['branch'] ) ? $plugin_data['branch'] : 'master';
+
+		foreach ( array( 'GitHub Plugin URI', 'GitLab Plugin URI', 'Bitbucket Plugin URI' ) as $header ) {
+			if ( ! empty( $plugin_data[ $header ] ) ) {
+				$githost_name = preg_replace( '/ Plugin URI$/', '', $header );
+				$new_action   = array(
+					strtolower( $githost_name ) => sprintf(
+						$link_template,
+						$plugin_data[ $header ],
+						__( 'Visit ' . $githost_name . ' repository', 'github-updater' ),
+						plugins_url( 'icon/' . $githost_name . '-Mark-32px.png', GHU_PLUGIN_NAME ),
+						$githost_name,
+						$branch ? '/' . $branch : ''
+					),
+				);
+				$actions      = $new_action + $actions;
+			}
+		}
 
 		$on_wporg = false;
 		_maybe_update_plugins();
@@ -674,101 +685,32 @@ class Local_Development {
 			$on_wporg = true;
 		}
 
-		if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
-			$icon   = 'icon/GitHub-Mark-32px.png';
-			$branch = '';
-
-			if ( ! empty( $plugin_data['GitHub Access Token'] ) ) {
-				$icon = 'icon/GitHub-Mark-Private-32px.png"';
-			}
-			if ( ! empty( $plugin_data['GitHub Branch'] ) ) {
-				$branch = '/' . $plugin_data['GitHub Branch'];
-			}
-
-			$new_action = array(
-				'github' => sprintf(
-					$link_template,
-					$plugin_data['GitHub Plugin URI'],
-					__( 'Visit GitHub repository', 'github-updater' ),
-					plugins_url( $icon, GHU_PLUGIN_NAME ),
-					'GitHub',
-					$branch
-				),
-			);
-			$actions    = $new_action + $actions;
-		}
-
-		if ( ! empty( $plugin_data['GitLab Plugin URI'] ) ) {
-			$icon   = 'icon/GitLab-Mark-32px.png';
-			$branch = '';
-
-			if ( ! empty( $plugin_data['GitLab Branch'] ) ) {
-				$branch = '/' . $plugin_data['GitLab Branch'];
-			}
-
-			$new_action = array(
-				'gitlab' => sprintf(
-					$link_template,
-					$plugin_data['GitLab Plugin URI'],
-					__( 'Visit GitLab repository', 'github-updater' ),
-					plugins_url( $icon, GHU_PLUGIN_NAME ),
-					'GitLab',
-					$branch
-				),
-			);
-			$actions    = $new_action + $actions;
-		}
-
-		if ( ! empty( $plugin_data['Bitbucket Plugin URI'] ) ) {
-			$icon   = 'icon/bitbucket_32_darkblue_atlassian.png';
-			$branch = '';
-
-			if ( ! empty( $plugin_data['Bitbucket Branch'] ) ) {
-				$branch = '/' . $plugin_data['Bitbucket Branch'];
-			}
-
-			$new_action = array(
-				'bitbucket' => sprintf(
-					$link_template,
-					$plugin_data['Bitbucket Plugin URI'],
-					__( 'Visit Bitbucket repository', 'github-updater' ),
-					plugins_url( $icon, GHU_PLUGIN_NAME ),
-					'Bitbucket',
-					$branch
-				),
-			);
-			$actions    = $new_action + $actions;
-		}
-
 		if ( $on_wporg ) {
 			$plugin_page = '';
-			if ( isset( $plugin_state->response[ $plugin_file ] ) ) {
-				if ( property_exists( $plugin_state->response[ $plugin_file ], 'url' ) ) {
+			if ( isset( $plugin_state->response[ $plugin_file ] )
+				&& property_exists( $plugin_state->response[ $plugin_file ], 'url' )
+			) {
 					$plugin_page = $plugin_state->response[ $plugin_file ]->url;
-				}
-			} elseif ( isset( $plugin_state->no_update[ $plugin_file ] ) ) {
-				if ( property_exists( $plugin_state->no_update[ $plugin_file ], 'url' ) ) {
+			} else if ( isset( $plugin_state->no_update[ $plugin_file ] )
+								&& property_exists( $plugin_state->no_update[ $plugin_file ], 'url' )
+							) {
 					$plugin_page = $plugin_state->no_update[ $plugin_file ]->url;
-				}
 			}
 
 			// GHU also sets plugin->url.
-			if ( false !== strstr( $plugin_page, '//wordpress.org/plugins/' ) ) {
-							$icon    = 'icon/wordpress-logo-32.png';
-							$branch  = '';
-				$new_action          = array(
+			// if ( false !== strstr( $plugin_page, '//wordpress.org/plugins/' ) ) {
+				$new_action = array(
 					'wordpress_org' => sprintf(
-						// $wp_link_template,
-											$link_template,
+						$link_template,
 						$plugin_page,
 						__( 'Visit WordPress.org Plugin Page', 'github-updater' ),
-						plugins_url( $icon, GHU_PLUGIN_NAME ),
+						plugins_url( 'icon/wordpress-logo-32.png', GHU_PLUGIN_NAME ),
 						'wp_org',
-						$branch
+						''
 					),
 				);
-							$actions = $new_action + $actions;
-			}
+				$actions    = $new_action + $actions;
+			// }
 		}
 
 		return $actions;

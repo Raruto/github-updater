@@ -2,10 +2,10 @@
 /**
  * GitHub Updater
  *
- * @package	GitHub_Updater
- * @author	Andy Fragen
- * @license	GPL-2.0+
- * @link	 https://github.com/afragen/github-updater
+ * @package GitHub_Updater
+ * @author  Andy Fragen
+ * @license GPL-2.0+
+ * @link     https://github.com/afragen/github-updater
  */
 
 namespace Fragen\GitHub_Updater\Model\Plugin;
@@ -22,16 +22,21 @@ class GitHubPlugin extends GitPlugin {
 	public function __construct( $plugin_path, $plugin_data ) {
 		parent::__construct( $plugin_path, $plugin_data );
 
-		if(!empty($plugin_data['GitHub Plugin URI'])) {
-			$this->set_plugin_uri($plugin_data['GitHub Plugin URI']);
+		if ( ! empty( $plugin_data['GitHub Plugin URI'] ) ) {
+			$this->set_plugin_uri( $plugin_data['GitHub Plugin URI'] );
 		}
-		if(!empty($plugin_data['GitHub Branch'])) {
-			$this->set_branch($plugin_data['GitHub Branch']);
+		// if ( ! empty( $plugin_data['GitHub Branch'] ) ) {
+		// 	$this->set_branch( $plugin_data['GitHub Branch'] );
+		// }
+		if ( ! empty( $plugin_data['GitHub Access Token'] ) ) {
+			$this->set_token( $plugin_data['GitHub Access Token'] );
 		}
-		if(!empty($plugin_data['GitHub Access Token'])) {
-			$this->set_token($plugin_data['GitHub Access Token']);
+		$this->set_hostname( 'github' );
+
+		$this->icon = 'icon/GitHub-Mark-32px.png';
+		if ( ! empty( $plugin_data['GitHub Access Token'] ) ) {
+			$this->icon = 'icon/GitHub-Mark-Private-32px.png"';
 		}
-		$this->set_hostname("github");
 
 	}
 

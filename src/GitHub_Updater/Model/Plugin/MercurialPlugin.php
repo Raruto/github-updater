@@ -2,10 +2,10 @@
 /**
  * GitHub Updater
  *
- * @package	GitHub_Updater
- * @author	Andy Fragen
- * @license	GPL-2.0+
- * @link	 https://github.com/afragen/github-updater
+ * @package GitHub_Updater
+ * @author  Andy Fragen
+ * @license GPL-2.0+
+ * @link     https://github.com/afragen/github-updater
  */
 
 namespace Fragen\GitHub_Updater\Model\Plugin;
@@ -28,7 +28,7 @@ class MercurialPlugin extends WordpressPlugin {
 		$version = $this->plugin_data['Version'];
 		if ( $this->has_composer() ) {
 			$composer = $this->get_composer();
-			if ( !empty( $composer->version ) ) {
+			if ( ! empty( $composer->version ) ) {
 				return $composer->version;
 			}
 		}
@@ -36,10 +36,10 @@ class MercurialPlugin extends WordpressPlugin {
 	}
 
 	public function get_required_version() {
-		$version = '>='.$this->plugin_data['Version'];
+		$version = '>=' . $this->plugin_data['Version'];
 		if ( $this->has_composer() ) {
 			$composer = $this->get_composer();
-			if ( !empty( $composer->version ) ) {
+			if ( ! empty( $composer->version ) ) {
 				return $composer->version;
 			}
 		}
@@ -51,7 +51,7 @@ class MercurialPlugin extends WordpressPlugin {
 	}
 
 	public function is_in_development() {
-		return file_exists( $this->path .'.hg/' );
+		return file_exists( $this->path . '.hg/' );
 	}
 
 	public function has_vcs() {
@@ -63,8 +63,8 @@ class MercurialPlugin extends WordpressPlugin {
 	}
 
 	public function get_url() {
-		$hgrcpath = trailingslashit( $this->path ).'.hg/hgrc';
-		$hgrc = parse_ini_file( $hgrcpath );
+		$hgrcpath   = trailingslashit( $this->path ) . '.hg/hgrc';
+		$hgrc       = parse_ini_file( $hgrcpath );
 		$remote_url = $hgrc['default'];
 
 		$remote_url = trim( $remote_url );

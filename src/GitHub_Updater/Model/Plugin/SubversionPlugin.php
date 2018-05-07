@@ -2,10 +2,10 @@
 /**
  * GitHub Updater
  *
- * @package	GitHub_Updater
- * @author	Andy Fragen
- * @license	GPL-2.0+
- * @link	 https://github.com/afragen/github-updater
+ * @package GitHub_Updater
+ * @author  Andy Fragen
+ * @license GPL-2.0+
+ * @link     https://github.com/afragen/github-updater
  */
 
 namespace Fragen\GitHub_Updater\Model\Plugin;
@@ -26,7 +26,7 @@ class SubversionPlugin extends WordpressPlugin {
 		$version = $this->plugin_data['Version'];
 		if ( $this->has_composer() ) {
 			$composer = $this->get_composer();
-			if ( !empty( $composer->version ) ) {
+			if ( ! empty( $composer->version ) ) {
 				return $composer->version;
 			}
 		}
@@ -34,10 +34,10 @@ class SubversionPlugin extends WordpressPlugin {
 	}
 
 	public function get_required_version() {
-		$version = '>='.$this->plugin_data['Version'];
+		$version = '>=' . $this->plugin_data['Version'];
 		if ( $this->has_composer() ) {
 			$composer = $this->get_composer();
-			if ( !empty( $composer->version ) ) {
+			if ( ! empty( $composer->version ) ) {
 				return $composer->version;
 			}
 		}
@@ -49,7 +49,7 @@ class SubversionPlugin extends WordpressPlugin {
 	}
 
 	public function is_in_development() {
-		return file_exists( $this->path .'.svn/' );
+		return file_exists( $this->path . '.svn/' );
 	}
 
 	public function get_vcs_type() {
@@ -57,30 +57,30 @@ class SubversionPlugin extends WordpressPlugin {
 	}
 
 	public function get_url() {
-		$dbpath = trailingslashit( $this->path ).'.svn/wc.db';
+		$dbpath = trailingslashit( $this->path ) . '.svn/wc.db';
 
 		$root = '';
-		//$database = \sqlite_open( $dbpath, 0666, $error );
-		$database = new \PDO( 'sqlite:'.$dbpath );
-		$sql = 'SELECT root FROM REPOSITORY ORDER BY id';
+		// $database = \sqlite_open( $dbpath, 0666, $error );
+		$database = new \PDO( 'sqlite:' . $dbpath );
+		$sql      = 'SELECT root FROM REPOSITORY ORDER BY id';
 		foreach ( $database->query( $sql ) as $row ) {
 			$root = trailingslashit( $row['root'] );
 			break;
 		}
 
-		//$info = \svn_info( $this->path );
+		// $info = \svn_info( $this->path );
 		return $root;
 	}
 
 	public function get_reference() {
-		$dbpath = trailingslashit( $this->path ).'.svn/wc.db';
+		$dbpath = trailingslashit( $this->path ) . '.svn/wc.db';
 
-		//$database = \sqlite_open( $dbpath, 0666, $error );
-		$database = new \PDO( 'sqlite:'.$dbpath );
+		// $database = \sqlite_open( $dbpath, 0666, $error );
+		$database = new \PDO( 'sqlite:' . $dbpath );
 
 		$key = substr( $this->filepath, strlen( $this->path ) );
 
-		$sql = 'SELECT * FROM NODES WHERE local_relpath = "'.$key.'" ORDER BY wc_id';
+		$sql = 'SELECT * FROM NODES WHERE local_relpath = "' . $key . '" ORDER BY wc_id';
 		foreach ( $database->query( $sql ) as $row ) {
 			$rel = $row['repos_path'];
 			break;

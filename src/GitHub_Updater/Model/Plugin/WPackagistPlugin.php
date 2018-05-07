@@ -2,10 +2,10 @@
 /**
  * GitHub Updater
  *
- * @package	GitHub_Updater
- * @author	Andy Fragen
- * @license	GPL-2.0+
- * @link	 https://github.com/afragen/github-updater
+ * @package GitHub_Updater
+ * @author  Andy Fragen
+ * @license GPL-2.0+
+ * @link     https://github.com/afragen/github-updater
  */
 
 namespace Fragen\GitHub_Updater\Model\Plugin;
@@ -27,7 +27,7 @@ class WPackagistPlugin extends WordpressPlugin {
 		$version = $this->plugin_data['Version'];
 		if ( $this->has_composer() ) {
 			$composer = $this->get_composer();
-			if ( !empty( $composer->version ) ) {
+			if ( ! empty( $composer->version ) ) {
 				return $composer->version;
 			}
 		}
@@ -35,10 +35,10 @@ class WPackagistPlugin extends WordpressPlugin {
 	}
 
 	public function get_required_version() {
-		$version = '>='.$this->plugin_data['Version'];
+		$version = '>=' . $this->plugin_data['Version'];
 		if ( $this->has_composer() ) {
 			$composer = $this->get_composer();
-			if ( !empty( $composer->version ) ) {
+			if ( ! empty( $composer->version ) ) {
 				return $composer->version;
 			}
 		}
