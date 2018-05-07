@@ -649,6 +649,8 @@ if ( ! defined( 'WPINC' ) ) {
 		    if ( 'search' === $context )
 		        return $actions;
 
+				var_dump($plugin_data);
+
 		    $link_template = '<a href="%s" title="%s" target="_blank"><img src="%s" style="width: 16px; height: 16px; margin-top: 4px; padding-right: 4px; float: none;" height="16" width="16" alt="%s" />%s</a>';
 
 		    $on_wporg = false;
