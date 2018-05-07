@@ -643,12 +643,12 @@ class Local_Development {
 		// Keys will get lost.
 		return array_merge(
 			$extra_headers, array(
-				'GitHubURI'       => 'GitHub Plugin URI',
+				//'GitHubURI'       => 'GitHub Plugin URI',
 				'GitHubBranch'    => 'GitHub Branch',
 				'GitHubToken'     => 'GitHub Access Token',
-				'GitLabURI'       => 'GitLab Plugin URI',
+				//'GitLabURI'       => 'GitLab Plugin URI',
 				'GitLabBranch'    => 'GitLab Branch',
-				'BitbucketURI'    => 'Bitbucket Plugin URI',
+				//'BitbucketURI'    => 'Bitbucket Plugin URI',
 				'BitbucketBranch' => 'Bitbucket Branch',
 			)
 		);
