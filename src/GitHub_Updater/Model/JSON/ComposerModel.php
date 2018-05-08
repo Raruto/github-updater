@@ -148,7 +148,7 @@ class ComposerModel extends JSONModel
 
 	public function initialize_json_manifest() {
 		$this->required( 'johnpbloch/wordpress', '*@stable' );
-		$this->required( 'php', '>=5.3.2' );
+		$this->required( 'php', '>=' . phpversion() );
 
 		$this->set_name( 'wpsite/'.sanitize_title( get_bloginfo( 'name' ) ) );
 		$this->set_homepage( home_url() );
