@@ -116,6 +116,7 @@ abstract class AbstractPlugin implements PluginInterface {
 		return $json;
 	}
 
+	abstract public function has_token();
 	abstract public function is_packagist();
 	abstract public function get_version();
 	abstract public function get_required_version();

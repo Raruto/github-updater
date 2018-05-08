@@ -30,13 +30,16 @@ class WordpressPlugin extends AbstractPlugin {
 	}
 
 	public function get_version() {
-		return $plugin_data['Version'];
+		return $this->plugin_data['Version'];
 	}
 
 	public function get_required_version() {
 		return $this->get_version();
 	}
 
+	public function has_token() {
+		return false;
+	}
 	public function is_packagist() {
 		return false;
 	}
